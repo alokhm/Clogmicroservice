@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:c="http://www.springframework.org/schema/c" xmlns:p="http://www.springframework.org/schema/p" xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd ">
+    
+    <util:list id="entityReaders">
+        <!-- Error reader must be declared first -->
+        <bean class="com.covisint.core.http.service.core.io.jsonp.HttpServiceErrorReader" />
+        <bean class="com.covisint.platform.clog.core.cloginstance.io.json.ClogInstanceReader"/>
+    </util:list>
+
+    <util:list id="entityWriters">
+        <!-- Error writer must be declared first! -->
+        <bean class="com.covisint.core.http.service.core.io.jsonp.HttpServiceErrorWriter" /> 
+        <bean class="com.covisint.platform.clog.core.cloginstance.io.json.ClogInstanceWriter"/>
+    </util:list>
+
+    <bean id="messageConverter" class="com.covisint.core.http.service.server.view.MediaTypeModelMessageConverter"
+        c:readers-ref="entityReaders" c:writers-ref="entityWriters" />
+
+    <bean id="viewResolver" class="com.covisint.core.http.service.server.view.MediaTypeModelMessageConverterViewResolver"
+        c:messageConverter-ref="messageConverter" />
+
+    <mvc:annotation-driven conversion-service="conversionService">
+        <mvc:message-converters>
+            <ref bean="messageConverter" />
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    
+    <context:component-scan base-package="com.covisint.core,com.covisint.platform.clog" />
+    
+    <mvc:interceptors>
+        <bean class="com.covisint.core.http.service.server.HeadersInterceptor" />
+    </mvc:interceptors>
+
+</beans>

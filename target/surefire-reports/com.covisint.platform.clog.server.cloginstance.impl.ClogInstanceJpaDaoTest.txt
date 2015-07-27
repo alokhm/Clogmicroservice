@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.covisint.platform.clog.server.cloginstance.impl.ClogInstanceJpaDaoTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.309 sec - in com.covisint.platform.clog.server.cloginstance.impl.ClogInstanceJpaDaoTest
