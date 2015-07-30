@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN" "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<!-- Documentation for checkstyle native tasks can be found here: http://checkstyle.sourceforge.net/availablechecks.html -->
+
+<module name="Checker">
+    <property name="charset" value="UTF-8" />
+
+    <module name="TreeWalker">
+        <property name="tabWidth" value="4" />
+
+        <module name="AbstractClassName">
+            <!-- Ensure that abstract class names match the given regexp -->
+            <property name="severity" value="warning" />
+            <property name="format" value="^Abstract.*$|^Base.*$" />
+        </module>
+
+        <module name="AnonInnerLength">
+            <!-- Disallow anonymous inner classes with more than the given number of lines -->
+            <property name="severity" value="error" />
+            <property name="max" value="40" />
+        </module>
+
+        <module name="ArrayTrailingComma">
+            <!-- Suggest that multi-element array init blocks have a comma after the last element -->
+            <property name="severity" value="info" />
+        </module>
+
+        <module name="ArrayTypeStyle">
+            <!-- Use Java style (e.g., String[] args) instead of C style (e.g., String args[]) array decls -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="AvoidInlineConditionals">
+            <!-- Disallow use of inline conditionals and ternary operator -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="AvoidNestedBlocks">
+            <!-- Disallow free, nested blocks -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="AvoidStarImport">
+            <!-- Disallow wildcard import statements (e.g., import com.foo.*) -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="BooleanExpressionComplexity">
+            <!-- Recommend against more than 4 predicates in an expression -->
+            <property name="severity" value="info" />
+            <property name="max" value="4" />
+        </module>
+
+        <module name="ClassDataAbstractionCoupling">
+            <!-- Recommend against more than 7 different type instantiations within a class in order to reduce coupling -->
+            <!-- TODO(clajoie) 7 "feels" too high, consider reducing to 5 -->
+            <property name="severity" value="info" />
+            <property name="max" value="7" />
+        </module>
+
+        <module name="ClassFanOutComplexity">
+            <!-- Recommend against this class relying on more than 20 other classes -->
+            <!-- TODO(clajoie) 20 "feels" too high, consider reducing to 15 or less -->
+            <property name="severity" value="info" />
+            <property name="max" value="20" />
+        </module>
+
+        <module name="ConstantName">
+            <!-- Ensure all constants start with an upper case letter and include only upper case letters, numbers, and underscore -->
+            <property name="severity" value="error" />
+            <property name="format" value="^[A-Z][A-Z0-9_]*$" />
+        </module>
+
+        <module name="CovariantEquals">
+            <!-- warning if a class has an equals() method and doesn't also override Object#equals(Object) -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="CyclomaticComplexity">
+            <!-- warning on a greater than 7 cyclomatic complexity -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="max" value="7" />
+        </module>
+
+        <module name="DeclarationOrder">
+            <!-- Enforce Java Code Convention field/method declaration order -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="DefaultComesLast">
+            <!-- default: should come last in a switch block -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="EmptyBlock">
+            <!-- Disallow empty code blocks -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="EmptyForInitializerPad">
+            <!-- space-pad for loop initializers -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="EmptyForIteratorPad">
+            <!-- space-pad for loop iterator initializers -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="EmptyStatement">
+            <!-- Disallow empty statements (e.g., ;;) -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="EqualsAvoidNull">
+            <!-- Ensure string literals are on the left side of an String#equals() call -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="EqualsHashCode">
+            <!-- Require hashCode() if equals is overridden is implemented -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="ExplicitInitialization">
+            <!-- Inform developer of initializing variable to its default value -->
+            <property name="severity" value="info" />
+        </module>
+
+        <module name="FallThrough">
+            <!-- Check that cases don't fall through in a switch statement unless explicitly commented with "fall through" -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="FinalClass">
+            <!-- Check that a class which has only private constructors is declared as final -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="FinalLocalVariable">
+            <!-- Check that local variables whose values aren't changed are marked final -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="GenericWhitespace">
+            <!-- Check that the whitespace around the Generic tokens < and > is correct to the typical convention -->
+            <property name="severity" value="info" />
+        </module>
+
+        <module name="HiddenField">
+            <!-- Checks that a local variable or a parameter does not shadow a field that is defined in the same class -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="HideUtilityClassConstructor">
+            <!-- Make sure that utility classes (classes that contain only static methods) do not have a public constructor -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="IllegalCatch">
+            <!-- Catching java.lang.Exception, java.lang.Error or java.lang.RuntimeException is almost never acceptable. -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="IllegalImport">
+            <!-- Checks for imports from a set of illegal packages -->
+            <property name="severity" value="error" />
+            <property name="illegalPkgs" value="sun" />
+        </module>
+
+        <module name="IllegalThrows">
+            <!-- check can be used to ensure that types are not declared to be thrown -->
+            <!-- TODO(clajoie) increase this to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="illegalClassNames" value="java.lang.Throwable, java.lang.Error, java.lang.RuntimeException" />
+        </module>
+
+        <module name="IllegalToken">
+            <!-- Disallow use of these tokens -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="tokens" value="LITERAL_NATIVE" />
+        </module>
+
+        <module name="InnerAssignment">
+            <!-- checks for assignments in subexpressions, such as in String s = Integer.toString(i = 2); -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="InnerTypeLast">
+            <!-- check nested (internal) classes/interfaces are declared at the bottom of the class after all method and 
+                field declarations -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="InterfaceIsType">
+            <!-- See Effective Java, Item 17 - Use Interfaces only to define types -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="JavadocMethod">
+            <!-- Checks the Javadoc of a method or constructor -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="allowUndeclaredRTE" value="true" />
+            <property name="allowThrowsTagsForSubclasses" value="true" />
+        </module>
+
+        <module name="JavadocStyle">
+            <!-- Check Javadoc comments to ensure they are well formed -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="checkFirstSentence" value="true" />
+            <property name="checkEmptyJavadoc" value="true" />
+        </module>
+
+        <module name="JavadocType">
+            <!-- checks Javadoc comments for class and interface definitions -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="JavadocVariable">
+            <!-- checks that variables have Javadoc comments -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="LeftCurly">
+            <!-- checks for the placement of left curly braces ('{') for code blocks -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="option" value="eol" />
+        </module>
+
+        <module name="LineLength">
+            <!-- checks for long lines -->
+            <property name="severity" value="warning" />
+            <property name="max" value="125" />
+        </module>
+
+        <module name="LocalFinalVariableName">
+            <!-- check local, final variables, including catch parameters -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$" />
+        </module>
+
+        <module name="LocalVariableName">
+            <!-- check local, non-final variables, including catch parameters -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$" />
+        </module>
+
+        <module name="MemberName">
+            <!-- check non-static fields -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$" />
+        </module>
+
+        <module name="MethodCount">
+            <!-- checks the number of methods declared in each type -->
+            <!-- TODO(clajoie) decrease to 50 in the future -->
+            <property name="severity" value="warning" />
+            <property name="maxTotal" value="100" />
+        </module>
+
+        <module name="MethodLength">
+            <!-- checks for long methods and constructors -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="max" value="50" />
+            <property name="countEmpty" value="false" />
+        </module>
+
+        <module name="MethodName">
+            <!-- check non-static fields -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$" />
+        </module>
+
+        <module name="MethodParamPad">
+            <!-- Checks the padding between the identifier of a definition and the left parenthesis of the parameter list -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="MissingSwitchDefault">
+            <!-- checks that switch statement has "default" clause -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="ModifiedControlVariable">
+            <!-- check for ensuring that for loop control variables are not modified inside the for block -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="ModifierOrder">
+            <!-- checks that the order of modifiers conforms to the suggestions in the Java Language specification, sections 
+                8.1.1, 8.3.1 and 8.4.3 -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="MultipleVariableDeclarations">
+            <!-- checks that each variable declaration is in its own statement and on its own line -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="MutableException">
+            <!-- Ensures that exceptions (defined as any class name conforming to some regular expression) are immutable -->
+            <property name="severity" value="error" />
+            <property name="format" value="^.*Exception$|^.*Error$" />
+        </module>
+
+        <module name="NeedBraces">
+            <!-- checks for braces around code blocks -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="NestedForDepth">
+            <!-- checks the nested depth of for loops -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <!-- TODO(clajoie) may need to be reduced to 2 in the future -->
+            <property name="severity" value="warning" />
+            <property name="max" value="3" />
+        </module>
+
+        <module name="NestedIfDepth">
+            <!-- checks nested depth of if statements -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <!-- TODO(clajoie) may need to be reduced to 3 in the future -->
+            <property name="severity" value="warning" />
+            <property name="max" value="5" />
+        </module>
+
+        <module name="NestedTryDepth">
+            <!-- checks nested depth of if statements -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <!-- TODO(clajoie) may need to be reduced to 2 in the future -->
+            <property name="severity" value="warning" />
+            <property name="max" value="3" />
+        </module>
+
+        <module name="NoClone">
+            <!-- checks that the clone method is not overridden from the Object class -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="NoFinalizer">
+            <!-- checks there are no finalize() methods defined in a class -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="OneStatementPerLine">
+            <!-- checks there is only one statement per line -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="PackageAnnotation">
+            <!-- check makes sure that all package annotations are in the package-info.java file -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="PackageDeclaration">
+            <!-- Check class has a package declaration and the package name matches the directory name for the source file -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="PackageName">
+            <!-- ensure package name matches the regexp below -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="format" value="^[a-z]+(\.[a-zA-Z][a-zA-Z0-9]*)*$" />
+        </module>
+
+        <module name="ParameterAssignment">
+            <!-- disallow assignment of parameters -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="ParameterName">
+            <!-- ensure parameter names matches the regexp below -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$" />
+        </module>
+
+        <module name="ParameterNumber">
+            <!-- checks the number of parameters of a method or constructor -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="max" value="5" />
+        </module>
+
+        <module name="RedundantImport">
+            <!-- checks for redundant import statements -->
+            <property name="severity" value="info" />
+        </module>
+
+        <module name="RedundantModifier">
+            <!-- checks for redundant modifiers -->
+            <property name="severity" value="info" />
+        </module>
+
+        <module name="RedundantThrows">
+            <!-- checks for redundant thrown exceptions -->
+            <property name="severity" value="info" />
+        </module>
+
+        <module name="ReturnCount">
+            <!-- restricts the number of return statements -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="max" value="5" />
+        </module>
+
+        <module name="RightCurly">
+            <!-- checks for the placement of right curly braces ('}') for code blocks -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="option" value="same" />
+        </module>
+
+        <module name="SimplifyBooleanExpression">
+            <!-- checks for overly complicated boolean expressions -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="SimplifyBooleanReturn">
+            <!-- checks for overly complicated boolean return statements -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="StaticVariableName">
+            <!-- ensure static variables names match the regexp below -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$" />
+        </module>
+
+        <module name="StringLiteralEquality">
+            <!-- checks that string literals are not used with == or !=. -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="ThrowsCount">
+            <!-- restricts throws statements to a specified count -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="max" value="5" />
+        </module>
+
+        <module name="TypeName">
+            <!-- ensure type (classes, interfaces) names match the regexp below -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$" />
+        </module>
+
+        <module name="UnnecessaryParentheses">
+            <!-- checks for the use of unnecessary parentheses -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="UnusedImports">
+            <!-- checks for the use of unnecessary imports -->
+            <!-- TODO(clajoie) increase to error in the future -->
+            <property name="severity" value="warning" />
+        </module>
+
+        <module name="UpperEll">
+            <!-- checks that long constants are defined with an upper ell. That is ' L' and not 'l'. -->
+            <property name="severity" value="error" />
+        </module>
+
+        <module name="VisibilityModifier">
+            <!-- checks visibility of class members -->
+            <property name="severity" value="error" />
+        </module>
+
+    </module>
+
+    <module name="FileLength">
+        <!-- Don't allow files longer than 750 lines -->
+        <!-- TODO(clajoie) increase to error in the future -->
+        <property name="severity" value="warning" />
+        <property name="max" value="750" />
+    </module>
+
+    <module name="FileTabCharacter">
+        <!-- Don't allow tab characters (\t) in source files -->
+        <property name="severity" value="error" />
+        <property name="eachLine" value="true" />
+    </module>
+
+    <module name="JavadocPackage">
+        <!-- Checks that each Java package has a Javadoc file used for commenting -->
+        <!-- TODO(clajoie) increase to error in the future -->
+        <property name="severity" value="warning" />
+        <property name="allowLegacy" value="false" />
+    </module>
+
+    <module name="RegexpHeader">
+        <!-- Ensure file headers start with Covisint copyright -->
+        <property name="severity" value="error" />
+        <property name="header" value="^/\* Copyright \(C\) (\d\d\d\d) Covisint. All Rights Reserved. \*/$" />
+    </module>
+
+</module>

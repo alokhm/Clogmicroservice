@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.covisint.platform.clog</groupId>
+		<artifactId>cloginstance-parent</artifactId>
+		<version>TRUNK-SNAPSHOT</version>
+	</parent>
+
+	<groupId>com.covisint.platform.clog.webapp</groupId>
+	<artifactId>cloginstance-webapp</artifactId>
+	<packaging>war</packaging>
+
+	<dependencies>
+
+		<!-- Compile -->
+		<dependency>
+			<groupId>com.covisint.platform.clog.server</groupId>
+			<artifactId>cloginstance-server</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- Provided -->
+
+		<!-- Runtime -->
+		<dependency>
+			<groupId>com.mchange</groupId>
+			<artifactId>c3p0</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.covisint.core</groupId>
+			<artifactId>trace</artifactId>
+			<version>TRUNK-SNAPSHOT</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Test -->
+
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-maven-plugin</artifactId>
+					<version>9.3.0.M2</version>
+					<configuration>
+						<jettyXml>${basedir}/src/test/jetty/jetty-jmx.xml</jettyXml>
+						<testClassesDirectory>${basedir}/target/test-classes</testClassesDirectory>
+						<useTestScope>true</useTestScope>
+						<systemProperties>
+							<systemProperty>
+								<name>spring.profiles.active</name>
+								<value>dev</value>
+							</systemProperty>
+						</systemProperties>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+</project>
