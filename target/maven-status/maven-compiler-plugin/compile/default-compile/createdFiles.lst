@@ -1,6 +1,0 @@
-com\covisint\platform\clog\server\cloginstance\ClogInstanceController.class
-com\covisint\platform\clog\server\cloginstance\impl\ClogInstanceJpaDao.class
-com\covisint\platform\clog\server\cloginstance\ClogInstanceService.class
-com\covisint\platform\clog\server\cloginstance\LibInfo.class
-com\covisint\platform\clog\server\cloginstance\ClogInstanceDAO.class
-com\covisint\platform\clog\server\cloginstance\impl\ClogInstanceServiceImpl.class

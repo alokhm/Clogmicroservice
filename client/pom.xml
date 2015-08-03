@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.covisint.platform.clog</groupId>
+        <artifactId>cloginstance-parent</artifactId>
+        <version>TRUNK-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.covisint.platform.clog.client</groupId>
+    <artifactId>cloginstance-client</artifactId>
+
+    <dependencies>
+
+        <!-- Compile -->
+        <dependency>
+            <groupId>com.covisint.core.http.service</groupId>
+            <artifactId>http-service-client</artifactId>
+            <version>${http.framework.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.covisint.platform.clog.core</groupId>
+            <artifactId>cloginstance-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.covisint.core</groupId>
+            <artifactId>httpclient-support</artifactId>
+            <version>TRUNK-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Provided -->
+
+        <!-- Runtime -->
+
+        <!-- Test -->
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

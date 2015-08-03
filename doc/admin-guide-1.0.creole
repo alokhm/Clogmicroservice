@@ -1,0 +1,1734 @@
+= Introduction
+
+== Overview
+This service supports the following operations and features:
+
+
+== Architecture
+This service is a standalone HTTP service.  All interactions with it are done through an HTTP API.
+
+
+= What's New in this Release?
+Initial release; it's all new!
+
+
+= Environment
+The following describe the environmental requirements for this service.
+
+== Hardware
+The recommended hardware for this is product is:
+* 2 CPU cores
+* 128MB of memory for the process
+* 300MB of disk space (mostly for logs)
+
+== Operating System
+The product has been tested on CentOS 5 and 6
+
+== Network
+The product must be able to receive HTTP requests through it's Servlet container.
+
+== Java
+Java 7 is required.  Java 7, update 25 or greater is recommended.
+
+== Servlet Container
+The product has been tested with Jetty version 9 and Tomcat versions 6 and 7.
+
+= External Services
+
+== Database
+This service requires Oracle as its database and version 11g release 2 is recommended.
+
+= Application Installation
+
+== Initial Setup
+NOTE, throughout this document the string $APP_HOME will be used to refer to the directory into which the application is
+installed.  This is usually /a01/apps/cloginstance.
+
+To prepare the environment:
+# mkdir -p $APP_HOME/{bin,catalina,conf,logs,webapp}
+# mkdir -p $APP_HOME/catalina/{conf,lib,logs,temp,work}
+# Copy initial Tomcat configuration files (see Appendix: Initial Configuration) into $APP_HOME/catalina/conf
+# Copy cloginstance.init script (see Appendix: Initial Configuration) into $APP_HOME/bin
+
+To install the application:
+# Download the WAR from [http://nexus.dtw.covisint.com/content/groups/public/com/covisint/|here].
+# Copy the war to $APP_HOME/webapp/ROOT.war
+# Copy the app.conf file (see Appendix: Initial Configuration) to $APP_HOME/conf/app.conf
+# In the app.conf file, set the mandatory attributes to the appropriate values.  Note, you should not need to change the
+JDBC driver class or database dialect unless you're testing against something other than Oracle
+# (Optional) review the tuning options in app.conf.  These values are well suited for basic workloads but if you are
+expecting very heavy load or deploying against a database that goes down relatively often you may see better performance
+by adjusting some of these options.
+
+== Initial Database Creation
+You will need to create the database.  See the database creation scripts in Appendix: Initial Database Creation DDL.
+
+== Span/Trace ID Support
+The application makes diagnostic data, in the form of trace and span ids, available to the application logs.  For these fields to appear in the logs, you will need to update the log4j pattern to display the fields:
+
+* traceId
+* parentSpanId
+* spanId
+
+An example log4j pattern is: '%d{ISO8601} %p [%t] [%X{traceId}|%X{parentSpanId}|%X{spanId}] %c#%M:%L - %m%n'
+
+== X-Frame-Options response header configuration
+The web.xml deployment descriptor declares the Servlet filter which will add this header to HTTP responses.  Unless otherwise specified, the value will default to DENY.  See http://tools.ietf.org/html/rfc7034 for value definitions.  If you need to change the framing options for your application instance, you may do so via Servlet container configuration, by specifying the following context parameters:
+
+* xFrameOption - e.g., one of {DENY|SAMEORIGIN|ALLOW-FROM}.
+* allowedUrls - e.g., https://example.com.  Only needed if xFrameOption is set to ALLOW-FROM.
+
+You can find instructions on how to set these parameters for Tomcat [http://tomcat.apache.org/tomcat-7.0-doc/config/context.html#Context_Parameters | here].
+
+
+= Upgrade from Previous Release
+The following changes should be made if you are upgrading from a previous release.
+
+== OS/Java/Servlet Changes
+Initial release, no upgrade available
+
+== Database Changes
+Initial release, no upgrade available
+
+== Configuration Changes
+Initial release, no upgrade available
+
+= Operating the Application
+== Startup and Shutdown
+The application can be started using the command:
+$APP_HOME/bin/cloginstance.init start
+
+The application can be stopped using the command:
+$APP_HOME/bin/cloginstance.init stop
+
+You can check to see if the application is running using the command:
+$APP_HOME/bin/cloginstance.init check
+
+== Logging
+The application log messages are written to the file $APP_HOME/logs/cloginstance.log
+
+It is recommended that logging for the package 'com.covisint' be set to INFO level for day-to-day operations.
+
+Other logging packages that may be useful for debugging purposes are:
+* com.springframework.web - used to trace the path of incoming HTTP requests
+* org.hibernate = used to see exactly what is going on with the framework used to interact with the database
+* com.mchange = Used to monitor datasource connection pools, metrics, status, health, and clean-up operations
+
+== Monitoring
+
+= Backup and Recovery
+The most important files to is $APP_HOME/conf/app.conf.  Everything else can easily be recreated or downloaded again.
+
+To recovery from a total loss of the service, simply re-install and restore the app.conf file.  Then start the service.
+
+= Troubleshooting
+
+= Appendix: Changelog
+
+= Appendix: Performance Baseline
+
+= Appendix: Capacity Planning Metrics
+
+= Appendix: Initial Database Creation DDL
+
+
+= Appendix: Initial Tomcat Configuration
+== cloginstance.init script
+#!/bin/sh
+
+OWNER=covapp
+
+APP_NAME=cloginstance
+APP_HOME="/a01/apps/${APP_NAME}"
+APP_CONF="${APP_HOME}/conf/app.conf"
+APP_GC_LOG="${APP_HOME}/logs/tomcat-gc.log"
+APP_ADDR=127.0.0.1
+APP_PORT=00000
+APP_JMX_PORT=00000
+APP_MEMORY=128M
+APP_REQ_THREADS=128
+APP_REQ_QUEUE=256
+
+ECHO="/bin/echo"
+PS="/bin/ps"
+SUDO="/usr/bin/sudo"
+
+JAVA_HOME="/a01/software/jdk1.7"
+TOMCAT_HOME="/a01/software/tomcat"
+CATALINA_BASE="${APP_HOME}/catalina"
+CATALINA_OPTS="-server -Xmx${APP_MEMORY}"
+CATALINA_OPTS="${CATALINA_OPTS} -XX:-DisableExplicitGC -Djava.net.preferIPv4Stack=true"
+CATALINA_OPTS="${CATALINA_OPTS} -XX:+UseConcMarkSweepGC -Xloggc:${APP_GC_LOG} -XX:+PrintGCTimeStamps"
+CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=${APP_JMX_PORT} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+CATALINA_OPTS="${CATALINA_OPTS} -Dtomcat.address=${APP_ADDR} -Dtomcat.port=${APP_PORT} -Dtomcat.maxRequestThreads=${APP_REQ_THREADS} -Dtomcat.maxRequestQueue=${APP_REQ_QUEUE}"
+CATALINA_OPTS="${CATALINA_OPTS} -Dapp.home=${APP_HOME} -Dapp.conf=${APP_CONF} -Dspring.profiles.active=prod"
+CATALINA_TEMP="${CATALINA_BASE}/temp"
+
+umask 022
+
+#----------- The Actual Meat of the Script Grab a Fork ------------
+case $1 in
+
+start)
+         cd "${APP_HOME}/logs"
+
+         ${SUDO} -u ${OWNER} JAVA_HOME=${JAVA_HOME} CATALINA_OPTS="${CATALINA_OPTS}" CATALINA_BASE=${CATALINA_BASE} CATALINA_TMPDIR=${CATALINA_TEMP} $TOMCAT_HOME/bin/startup.sh $JAVA_ARGS
+
+         cd -
+         ;;
+
+stop)
+         ${SUDO} -u ${OWNER} JAVA_HOME=${JAVA_HOME} CATALINA_OPTS="${CATALINA_OPTS}" CATALINA_BASE=${CATALINA_BASE} $TOMCAT_HOME/bin/shutdown.sh
+         ;;
+
+status)
+         ;;
+
+check)
+        $PS auxwww | grep ${APP_GC_LOG} | grep -v "sh -c" | grep -v grep
+        ;;
+
+*)
+        $ECHO "usage: $0 [ start | stop | check ]"
+        ;;
+
+esac
+
+exit 0
+
+
+== app.conf configuration file
+# Mandatory Properties
+######################################
+# These properties require values for the system to work.  In some cases the default values may be sufficient.
+
+# JDBC URI used to connect to the database.
+# default value: none, this property must be set
+db.url = 
+
+# The JDBC driver used to connect to the DB.  Do not use a driver which itself tries to do connection pooling:
+# default value: oracle.jdbc.OracleDriver
+#db.driver = oracle.jdbc.OracleDriver
+
+# Username used to connect to the database
+# default value: empty
+db.user = 
+
+# Password used to connect to the database
+# default value: empty
+db.password = 
+
+# The Dialect class name appropriate for the database in use.  See the following URL for the list of supported dialects
+# http://docs.jboss.org/hibernate/orm/4.2/devguide/en-US/html/ch01.html#d5e233
+# default value: org.hibernate.dialect.Oracle10gDialect
+#db.hib.dialect = org.hibernate.dialect.Oracle10gDialect
+
+
+
+# Tuning Properties
+######################################
+# These properties are for tuning the the system.  Most of them relate to managing connections to the database. Most of
+# the default properties should be decent under nominal loads.
+
+# Number of database connections created by the connection pool when it starts up.
+# default value: 5
+#db.pool.initialSize = 5
+
+# Maximum number of connections that can be open to the database at one time
+# default value: 25
+#db.pool.maxSize = 25
+
+# Minimum number of connections that will be maintained in the pool
+# default value: 0
+#db.pool.minSize = 0
+
+# Maximum number of prepared statements that will be cached.  If the database in question does not compile prepared
+# connections this property should be set to 0.
+# default value:10
+#db.pool.maxStatements = 10
+
+# Maximum amount of time, in seconds, a connection will remain idle before being closed.
+# default value: 300 (5 minutes)
+#db.con.maxIdleTime = 300
+
+# Period of time, in seconds, between the pool scanning connection to test them.  A value of 0 (zero) means will
+# prevent connections from being tested.  If this property is given a non-zero value, you must also provide a value for
+# the db.con.testQuery property.
+# default value: 30
+#db.con.testPeriod = 30
+
+# Query used to test whether a database connection is still usable.  This query should be as fast and easy on the 
+# database as possible when executing.  If the property db.con.testPeriod is set to 0 this property is not used.
+# default value: select 1 from dual
+#db.con.testQuery = select 1 from dual
+
+# The number of connections that will be created each time the pool runs out of connections.
+# default value: 5
+#db.con.acquireIncrement = 5
+
+# The number of times the pool will retry creating a connection to the database if the creation fails.  A value of 0
+# indicates that the pool should continually retry until a usable connection can be fetched.
+# default value: 0
+#db.con.retryAttempts = 0
+
+# The amount of time, in milliseconds, the pool will wait, if its previous attempt to get create a usable connection to
+# the database failed, before trying again.  A value of less than 500 is discouraged.
+# default value: 3000 (3 seconds)
+#db.con.retryDelay = 3000
+
+# Default schema used for SQL commands
+db.hib.schema = SVC_APP
+
+# The number of rows that will be returned per network call to the database.  A lower number will result in smaller
+# message sizes but more round trips.
+# default value: 50
+#db.hib.fetchSize = 50
+
+# The maximum depth for the outer join fetch tree for single-ended (one-to-one, many-to-one) associations.
+# default value: 3
+#db.hib.maxFetchDepth = 3
+
+# The number of statements that may be batched together before sending them on to the database.
+# default value: 8
+#db.hib.defBatchSize = 8
+
+
+# Development/Debug Properties
+######################################
+# These are properties that are useful for debugging or during development but should not generally be changed from
+# their default when the system is used in production.
+
+# The amount of time, in seconds, a connection may hold a connection before the pool assumes the connection was
+# abandoned.  A value of 0 indicates the pool will never forcefully reclaim a connection.
+# This is a debug option and should not be used in production. Developers, close your connections!
+# default value: 0
+#db.con.unreturnedTimeout = 0
+
+# Whether the pool should produce a stack track when it forcefully reclaims a connection that is believes is abandoned.
+# This property is not unless db.con.unreturnedTimeout has a value greater than 0.
+# default value: false
+#db.con.debugUnreturned = false
+
+# Whether Hibernate should create, validate, update, or drop then recreate the table schema in the database when it
+# starts up.  The values create and create-drop are very useful during development.  Past development this should not be
+# set to anything other than validate
+# default value: validate
+#db.hib.ddl = validate
+
+# Whether to pretty-print SQL statements if they are logged.  This is helpful during development but generally shouldn't
+# be on in production.
+# default value: false
+#db.hib.formatSql = false
+
+
+# Don't Touch Properties
+######################################
+# These are properties that under certain extreme conditions you may need to change but you should rarely do so and 
+# and never without consulting the product team
+
+# The transaction isolation level used for connections.  See the following URL for the acceptable values:
+# http://docs.oracle.com/javase/7/docs/api/constant-values.html#java.sql.Connection.TRANSACTION_NONE
+# You should never set this to anything other than 4 (TRANSACTION_REPEATABLE_READ) unless you are certain you know what
+# you're doing.  If you think you are certain, you should give that a second thought.
+# default value: 4
+#db.hib.isolationLevel = 4
+
+# Whether Hibernate should generate statistics on its usage.  These stats will be exposed via JMX if a suitable MBean
+# server is available.  The performance impact of generating these stats is low so this should be left on unless 
+# performance is more important that basic operational info.  See the various beans that are exposed here:
+# http://docs.jboss.org/hibernate/orm/4.2/javadocs/org/hibernate/stat/package-frame.html
+# default value: true
+#db.hib.genStats = true
+
+
+== $catalina.base/conf/catalina.properties
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#
+# List of comma-separated packages that start with or equal this string
+# will cause a security exception to be thrown when
+# passed to checkPackageAccess unless the
+# corresponding RuntimePermission ("accessClassInPackage."+package) has
+# been granted.
+package.access=sun.,org.apache.catalina.,org.apache.coyote.,org.apache.tomcat.,org.apache.jasper.,sun.beans.
+#
+# List of comma-separated packages that start with or equal this string
+# will cause a security exception to be thrown when
+# passed to checkPackageDefinition unless the
+# corresponding RuntimePermission ("defineClassInPackage."+package) has
+# been granted.
+#
+# by default, no packages are restricted for definition, and none of
+# the class loaders supplied with the JDK call checkPackageDefinition.
+#
+package.definition=sun.,java.,org.apache.catalina.,org.apache.coyote.,org.apache.tomcat.,org.apache.jasper.
+
+#
+#
+# List of comma-separated paths defining the contents of the "common" 
+# classloader. Prefixes should be used to define what is the repository type.
+# Path may be relative to the CATALINA_HOME or CATALINA_BASE path or absolute.
+# If left as blank,the JVM system loader will be used as Catalina's "common" 
+# loader.
+# Examples:
+#     "foo": Add this folder as a class repository
+#     "foo/*.jar": Add all the JARs of the specified folder as class 
+#                  repositories
+#     "foo/bar.jar": Add bar.jar as a class repository
+common.loader=${catalina.base}/lib,${catalina.base}/lib/*.jar,${catalina.home}/lib,${catalina.home}/lib/*.jar
+
+#
+# List of comma-separated paths defining the contents of the "server" 
+# classloader. Prefixes should be used to define what is the repository type.
+# Path may be relative to the CATALINA_HOME or CATALINA_BASE path or absolute.
+# If left as blank, the "common" loader will be used as Catalina's "server" 
+# loader.
+# Examples:
+#     "foo": Add this folder as a class repository
+#     "foo/*.jar": Add all the JARs of the specified folder as class 
+#                  repositories
+#     "foo/bar.jar": Add bar.jar as a class repository
+server.loader=
+
+#
+# List of comma-separated paths defining the contents of the "shared" 
+# classloader. Prefixes should be used to define what is the repository type.
+# Path may be relative to the CATALINA_BASE path or absolute. If left as blank,
+# the "common" loader will be used as Catalina's "shared" loader.
+# Examples:
+#     "foo": Add this folder as a class repository
+#     "foo/*.jar": Add all the JARs of the specified folder as class 
+#                  repositories
+#     "foo/bar.jar": Add bar.jar as a class repository 
+# Please note that for single jars, e.g. bar.jar, you need the URL form
+# starting with file:.
+shared.loader=
+
+#
+# String cache configuration.
+tomcat.util.buf.StringCache.byte.enabled=true
+#tomcat.util.buf.StringCache.char.enabled=true
+#tomcat.util.buf.StringCache.trainThreshold=500000
+#tomcat.util.buf.StringCache.cacheSize=5000
+
+== $catalina.base/conf/logging.properties
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+handlers = 1catalina.org.apache.juli.FileHandler, 2localhost.org.apache.juli.FileHandler, 3manager.org.apache.juli.FileHandler, 4host-manager.org.apache.juli.FileHandler, java.util.logging.ConsoleHandler
+
+.handlers = 1catalina.org.apache.juli.FileHandler, java.util.logging.ConsoleHandler
+
+############################################################
+# Handler specific properties.
+# Describes specific configuration info for Handlers.
+############################################################
+
+1catalina.org.apache.juli.FileHandler.level = FINE
+1catalina.org.apache.juli.FileHandler.directory = ${catalina.base}/logs
+1catalina.org.apache.juli.FileHandler.prefix = catalina.
+
+2localhost.org.apache.juli.FileHandler.level = FINE
+2localhost.org.apache.juli.FileHandler.directory = ${catalina.base}/logs
+2localhost.org.apache.juli.FileHandler.prefix = localhost.
+
+3manager.org.apache.juli.FileHandler.level = FINE
+3manager.org.apache.juli.FileHandler.directory = ${catalina.base}/logs
+3manager.org.apache.juli.FileHandler.prefix = manager.
+
+4host-manager.org.apache.juli.FileHandler.level = FINE
+4host-manager.org.apache.juli.FileHandler.directory = ${catalina.base}/logs
+4host-manager.org.apache.juli.FileHandler.prefix = host-manager.
+
+java.util.logging.ConsoleHandler.level = FINE
+java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+
+
+############################################################
+# Facility specific properties.
+# Provides extra control for each logger.
+############################################################
+
+org.apache.catalina.core.ContainerBase.[Catalina].[localhost].level = INFO
+org.apache.catalina.core.ContainerBase.[Catalina].[localhost].handlers = 2localhost.org.apache.juli.FileHandler
+
+org.apache.catalina.core.ContainerBase.[Catalina].[localhost].[/manager].level = INFO
+org.apache.catalina.core.ContainerBase.[Catalina].[localhost].[/manager].handlers = 3manager.org.apache.juli.FileHandler
+
+org.apache.catalina.core.ContainerBase.[Catalina].[localhost].[/host-manager].level = INFO
+org.apache.catalina.core.ContainerBase.[Catalina].[localhost].[/host-manager].handlers = 4host-manager.org.apache.juli.FileHandler
+
+# For example, set the com.xyz.foo logger to only log SEVERE
+# messages:
+#org.apache.catalina.startup.ContextConfig.level = FINE
+#org.apache.catalina.startup.HostConfig.level = FINE
+#org.apache.catalina.session.ManagerBase.level = FINE
+#org.apache.catalina.core.AprLifecycleListener.level=FINE
+
+== $catalina.base/conf/server.xml
+<?xml version='1.0' encoding='utf-8'?>
+
+<Server port="12345" shutdown="SHUTDOWN">
+
+  <Listener className="org.apache.catalina.core.JasperListener" />
+  <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+  <Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" />
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+
+  <Service name="Catalina">
+
+    <!-- 
+         Controls the max number of requests the server will handle
+           maxThreads - max number of concurrent connections 
+           maxQueueSize - max number of requests that will be queued if all threads are full
+    -->
+    <Executor name="tomcatThreadPool" namePrefix="catalina-exec-" 
+              maxThreads="${tomcat.maxThreads}" maxQueueSize="${tomcat.maxQueueSize}"
+              maxIdleTime="300000" minSpareThreads="4" />
+
+
+    <Connector address="${tomcat.address}" port="${tomcat.port}" executor="tomcatThreadPool" 
+               protocol="org.apache.coyote.http11.Http11Protocol"
+               maxHeaderCount="10" maxHttpHeaderSize="8192" maxParameterCount="10" maxPostSize="10485760"               
+               connectionTimeout="5000" />
+
+
+    <Engine name="Catalina" defaultHost="localhost">
+      <Host name="localhost"  appBase="${app.home}/webapp"
+            unpackWARs="false" autoDeploy="true"/>
+    </Engine>
+
+  </Service>
+
+</Server>
+
+== $catalina.base/conf/web.xml
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+    version="2.5">
+
+  <!-- ======================== Introduction ============================== -->
+  <!-- This document defines default values for *all* web applications      -->
+  <!-- loaded into this instance of Tomcat.  As each application is         -->
+  <!-- deployed, this file is processed, followed by the                    -->
+  <!-- "/WEB-INF/web.xml" deployment descriptor from your own               -->
+  <!-- applications.                                                        -->
+  <!--                                                                      -->
+  <!-- WARNING:  Do not configure application-specific resources here!      -->
+  <!-- They should go in the "/WEB-INF/web.xml" file in your application.   -->
+
+
+  <!-- ================== Built In Servlet Definitions ==================== -->
+
+
+  <!-- The default servlet for all web applications, that serves static     -->
+  <!-- resources.  It processes all requests that are not mapped to other   -->
+  <!-- servlets with servlet mappings (defined either here or in your own   -->
+  <!-- web.xml file.  This servlet supports the following initialization    -->
+  <!-- parameters (default values are in square brackets):                  -->
+  <!--                                                                      -->
+  <!--   debug               Debugging detail level for messages logged     -->
+  <!--                       by this servlet.  [0]                          -->
+  <!--                                                                      -->
+  <!--   fileEncoding        Encoding to be used to read static resources   -->
+  <!--                       [platform default]                             -->
+  <!--                                                                      -->
+  <!--   input               Input buffer size (in bytes) when reading      -->
+  <!--                       resources to be served.  [2048]                -->
+  <!--                                                                      -->
+  <!--   listings            Should directory listings be produced if there -->
+  <!--                       is no welcome file in this directory?  [false] -->
+  <!--                       WARNING: Listings for directories with many    -->
+  <!--                       entries can be slow and may consume            -->
+  <!--                       significant proportions of server resources.   -->
+  <!--                                                                      -->
+  <!--   output              Output buffer size (in bytes) when writing     -->
+  <!--                       resources to be served.  [2048]                -->
+  <!--                                                                      -->
+  <!--   readonly            Is this context "read only", so HTTP           -->
+  <!--                       commands like PUT and DELETE are               -->
+  <!--                       rejected?  [true]                              -->
+  <!--                                                                      -->
+  <!--   readmeFile          File name to display with the directory        -->
+  <!--                       contents. [null]                               -->
+  <!--                                                                      -->
+  <!--   sendfileSize        If the connector used supports sendfile, this  -->
+  <!--                       represents the minimal file size in KB for     -->
+  <!--                       which sendfile will be used. Use a negative    -->
+  <!--                       value to always disable sendfile.  [48]        -->
+  <!--                                                                      -->
+  <!--   useAcceptRanges     Should the Accept-Ranges header be included    -->
+  <!--                       in responses where appropriate? [true]         -->
+  <!--                                                                      -->
+  <!--  For directory listing customization. Checks localXsltFile, then     -->
+  <!--  globalXsltFile, then defaults to original behavior.                 -->
+  <!--                                                                      -->
+  <!--   localXsltFile       Make directory listings an XML doc and         -->
+  <!--                       pass the result to this style sheet residing   -->
+  <!--                       in that directory. This overrides              -->
+  <!--                        globalXsltFile[null]                          -->
+  <!--                                                                      -->
+  <!--   globalXsltFile      Site wide configuration version of             -->
+  <!--                       localXsltFile This argument is expected        -->
+  <!--                       to be a physical file. [null]                  -->
+  <!--                                                                      -->
+  <!--                                                                      -->
+
+    <servlet>
+        <servlet-name>default</servlet-name>
+        <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>0</param-value>
+        </init-param>
+        <init-param>
+            <param-name>listings</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+
+  <!-- This servlet has been deprecated due to security concerns. Servlets  -->
+  <!-- should be explicitly mapped in web.xml                               -->
+  <!--                                                                      -->
+  <!-- The "invoker" servlet, which executes anonymous servlet classes      -->
+  <!-- that have not been defined in a web.xml file.  Traditionally, this   -->
+  <!-- servlet is mapped to the URL pattern "/servlet/*", but you can map   -->
+  <!-- it to other patterns as well.  The extra path info portion of such a -->
+  <!-- request must be the fully qualified class name of a Java class that  -->
+  <!-- implements Servlet (or extends HttpServlet), or the servlet name     -->
+  <!-- of an existing servlet definition.     This servlet supports the     -->
+  <!-- following initialization parameters (default values are in square    -->
+  <!-- brackets):                                                           -->
+  <!--                                                                      -->
+  <!--   debug               Debugging detail level for messages logged     -->
+  <!--                       by this servlet.  [0]                          -->
+
+<!--
+    <servlet>
+        <servlet-name>invoker</servlet-name>
+        <servlet-class>
+          org.apache.catalina.servlets.InvokerServlet
+        </servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>0</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+-->
+
+
+  <!-- The JSP page compiler and execution servlet, which is the mechanism  -->
+  <!-- used by Tomcat to support JSP pages.  Traditionally, this servlet    -->
+  <!-- is mapped to the URL pattern "*.jsp".  This servlet supports the     -->
+  <!-- following initialization parameters (default values are in square    -->
+  <!-- brackets):                                                           -->
+  <!--                                                                      -->
+  <!--   checkInterval       If development is false and checkInterval is   -->
+  <!--                       greater than zero, background compilations are -->
+  <!--                       enabled. checkInterval is the time in seconds  -->
+  <!--                       between checks to see if a JSP page (and its   -->
+  <!--                       dependent files) needs to  be recompiled. [0]  -->
+  <!--                                                                      -->
+  <!--   classdebuginfo      Should the class file be compiled with         -->
+  <!--                       debugging information?  [true]                 -->
+  <!--                                                                      -->
+  <!--   classpath           What class path should I use while compiling   -->
+  <!--                       generated servlets?  [Created dynamically      -->
+  <!--                       based on the current web application]          -->
+  <!--                                                                      -->
+  <!--   compiler            Which compiler Ant should use to compile JSP   -->
+  <!--                       pages.  See the jasper documentation for more  -->
+  <!--                       information.                                   -->
+  <!--                                                                      -->
+  <!--   compilerSourceVM    Compiler source VM                             -->
+  <!--                       default is System.properties                   -->
+  <!--                        java.specification.version > 1.4              -->
+  <!--                        [1.5] else [1.4]                              -->
+  <!--                                                                      -->
+  <!--   compilerTargetVM    Compiler target VM                             -->  
+  <!--                       default is System.properties                   -->
+  <!--                        java.specification.version > 1.4              -->
+  <!--                        [1.5] else [1.4]                              -->
+  <!--                                                                      -->
+  <!--   development         Is Jasper used in development mode? If true,   -->
+  <!--                       the frequency at which JSPs are checked for    -->
+  <!--                       modification may be specified via the          -->
+  <!--                       modificationTestInterval parameter. [true]     -->
+  <!--                                                                      -->
+  <!--   displaySourceFragment                                              -->
+  <!--                       Should a source fragment be included in        -->
+  <!--                       exception messages? [true]                     -->
+  <!--                                                                      -->
+  <!--   dumpSmap            Should the SMAP info for JSR45 debugging be    -->
+  <!--                       dumped to a file? [false]                      -->
+  <!--                       False if suppressSmap is true                  -->
+  <!--                                                                      -->
+  <!--   enablePooling       Determines whether tag handler pooling is      -->
+  <!--                       enabled. This is a compilation option. It will -->
+  <!--                       not alter the behaviour of JSPs that have      -->
+  <!--                       already been compiled. [true]                  -->
+  <!--                                                                      -->
+  <!--   engineOptionsClass  Allows specifying the Options class used to    -->
+  <!--                       configure Jasper. If not present, the default  -->
+  <!--                       EmbeddedServletOptions will be used.           -->
+  <!--                                                                      -->
+  <!--   errorOnUseBeanInvalidClassAttribute                                -->
+  <!--                       Should Jasper issue an error when the value of -->
+  <!--                       the class attribute in an useBean action is    -->
+  <!--                       not a valid bean class?  [true]                -->
+  <!--                                                                      -->
+  <!--   fork                Tell Ant to fork compiles of JSP pages so that -->
+  <!--                       a separate JVM is used for JSP page compiles   -->
+  <!--                       from the one Tomcat is running in. [true]      -->
+  <!--                                                                      -->
+  <!--   genStrAsCharArray   Should text strings be generated as char       -->
+  <!--                       arrays, to improve performance in some cases?  -->
+  <!--                       [false]                                        -->
+  <!--                                                                      -->
+  <!--   ieClassId           The class-id value to be sent to Internet      -->
+  <!--                       Explorer when using <jsp:plugin> tags.         -->
+  <!--                       [clsid:8AD9C840-044E-11D1-B3E9-00805F499D93]   -->
+  <!--                                                                      -->
+  <!--   javaEncoding        Java file encoding to use for generating java  -->
+  <!--                       source files. [UTF8]                           -->
+  <!--                                                                      -->
+  <!--   keepgenerated       Should we keep the generated Java source code  -->
+  <!--                       for each page instead of deleting it? [true]   -->
+  <!--                                                                      -->
+  <!--   mappedfile          Should we generate static content with one     -->
+  <!--                       print statement per input line, to ease        -->
+  <!--                       debugging?  [true]                             -->
+  <!--                                                                      -->
+  <!--   modificationTestInterval                                           -->
+  <!--                       Causes a JSP (and its dependent files) to not  -->
+  <!--                       be checked for modification during the         -->
+  <!--                       specified time interval (in seconds) from the  -->
+  <!--                       last time the JSP was checked for              -->
+  <!--                       modification. A value of 0 will cause the JSP  -->
+  <!--                       to be checked on every access.                 -->
+  <!--                       Used in development mode only. [4]             -->
+  <!--                                                                      -->
+  <!--   scratchdir          What scratch directory should we use when      -->
+  <!--                       compiling JSP pages?  [default work directory  -->
+  <!--                       for the current web application]               -->
+  <!--                                                                      -->
+  <!--   suppressSmap        Should the generation of SMAP info for JSR45   -->
+  <!--                       debugging be suppressed?  [false]              -->
+  <!--                                                                      -->
+  <!--   trimSpaces          Should white spaces in template text between   -->
+  <!--                       actions or directives be trimmed?  [false]     -->
+  <!--                                                                      -->
+  <!--   xpoweredBy          Determines whether X-Powered-By response       -->
+  <!--                       header is added by generated servlet  [false]  -->
+  <!--                                                                      -->
+  <!-- If you wish to use Jikes to compile JSP pages:                       -->
+  <!--   Please see the "Using Jikes" section of the Jasper-HowTo           -->
+  <!--   page in the Tomcat documentation.                                  -->
+
+    <servlet>
+        <servlet-name>jsp</servlet-name>
+        <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
+        <init-param>
+            <param-name>fork</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>xpoweredBy</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+
+
+  <!-- NOTE: An SSI Filter is also available as an alternative SSI          -->
+  <!-- implementation. Use either the Servlet or the Filter but NOT both.   -->
+  <!--                                                                      -->
+  <!-- Server Side Includes processing servlet, which processes SSI         -->
+  <!-- directives in HTML pages consistent with similar support in web      -->
+  <!-- servers like Apache.  Traditionally, this servlet is mapped to the   -->
+  <!-- URL pattern "*.shtml".  This servlet supports the following          -->
+  <!-- initialization parameters (default values are in square brackets):   -->
+  <!--                                                                      -->
+  <!--   buffered            Should output from this servlet be buffered?   -->
+  <!--                       (0=false, 1=true)  [0]                         -->
+  <!--                                                                      -->
+  <!--   debug               Debugging detail level for messages logged     -->
+  <!--                       by this servlet.  [0]                          -->
+  <!--                                                                      -->
+  <!--   expires             The number of seconds before a page with SSI   -->
+  <!--                       directives will expire.  [No default]          -->
+  <!--                                                                      -->
+  <!--   isVirtualWebappRelative                                            -->
+  <!--                       Should "virtual" paths be interpreted as       -->
+  <!--                       relative to the context root, instead of       -->
+  <!--                       the server root?  (0=false, 1=true) [0]        -->
+  <!--                                                                      -->
+  <!--   inputEncoding       The encoding to assume for SSI resources if    -->
+  <!--                       one is not available from the resource.        -->
+  <!--                       [Platform default]                             -->
+  <!--                                                                      -->
+  <!--   outputEncoding      The encoding to use for the page that results  -->
+  <!--                       from the SSI processing. [UTF-8]               -->
+
+<!--
+    <servlet>
+        <servlet-name>ssi</servlet-name>
+        <servlet-class>
+          org.apache.catalina.ssi.SSIServlet
+        </servlet-class>
+        <init-param>
+          <param-name>buffered</param-name>
+          <param-value>1</param-value>
+        </init-param>
+        <init-param>
+          <param-name>debug</param-name>
+          <param-value>0</param-value>
+        </init-param>
+        <init-param>
+          <param-name>expires</param-name>
+          <param-value>666</param-value>
+        </init-param>
+        <init-param>
+          <param-name>isVirtualWebappRelative</param-name>
+          <param-value>0</param-value>
+        </init-param>
+        <load-on-startup>4</load-on-startup>
+    </servlet>
+-->
+
+
+  <!-- Common Gateway Includes (CGI) processing servlet, which supports     -->
+  <!-- execution of external applications that conform to the CGI spec      -->
+  <!-- requirements.  Typically, this servlet is mapped to the URL pattern  -->
+  <!-- "/cgi-bin/*", which means that any CGI applications that are         -->
+  <!-- executed must be present within the web application.  This servlet   -->
+  <!-- supports the following initialization parameters (default values     -->
+  <!-- are in square brackets):                                             -->
+  <!--                                                                      -->
+  <!--   cgiPathPrefix        The CGI search path will start at             -->
+  <!--                        webAppRootDir + File.separator + this prefix. -->
+  <!--                        [WEB-INF/cgi]                                 -->
+  <!--                                                                      -->
+  <!--   debug                Debugging detail level for messages logged    -->
+  <!--                        by this servlet.  [0]                         -->
+  <!--                                                                      -->
+  <!--   executable           Name of the exectuable used to run the        -->
+  <!--                        script. [perl]                                -->
+  <!--                                                                      -->
+  <!--   parameterEncoding    Name of parameter encoding to be used with    -->
+  <!--                        CGI servlet.                                  -->
+  <!--                        [System.getProperty("file.encoding","UTF-8")] -->
+  <!--                                                                      -->
+  <!--   passShellEnvironment Should the shell environment variables (if    -->
+  <!--                        any) be passed to the CGI script? [false]     -->
+
+<!--
+    <servlet>
+        <servlet-name>cgi</servlet-name>
+        <servlet-class>org.apache.catalina.servlets.CGIServlet</servlet-class>
+        <init-param>
+          <param-name>debug</param-name>
+          <param-value>0</param-value>
+        </init-param>
+        <init-param>
+          <param-name>cgiPathPrefix</param-name>
+          <param-value>WEB-INF/cgi</param-value>
+        </init-param>
+         <load-on-startup>5</load-on-startup>
+    </servlet>
+-->
+
+
+  <!-- ================ Built In Servlet Mappings ========================= -->
+
+
+  <!-- The servlet mappings for the built in servlets defined above.  Note  -->
+  <!-- that, by default, the CGI and SSI servlets are *not* mapped.  You    -->
+  <!-- must uncomment these mappings (or add them to your application's own -->
+  <!-- web.xml deployment descriptor) to enable these services              -->
+
+    <!-- The mapping for the default servlet -->
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <!-- The mapping for the deprecated invoker servlet -->
+<!--
+    <servlet-mapping>
+        <servlet-name>invoker</servlet-name>
+        <url-pattern>/servlet/*</url-pattern>
+    </servlet-mapping>
+-->
+
+    <!-- The mapping for the JSP servlet -->
+    <servlet-mapping>
+        <servlet-name>jsp</servlet-name>
+        <url-pattern>*.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>jsp</servlet-name>
+        <url-pattern>*.jspx</url-pattern>
+    </servlet-mapping>
+
+    <!-- The mapping for the SSI servlet -->
+<!--
+    <servlet-mapping>
+        <servlet-name>ssi</servlet-name>
+        <url-pattern>*.shtml</url-pattern>
+    </servlet-mapping>
+-->
+
+    <!-- The mapping for the CGI Gateway servlet -->
+
+<!--
+    <servlet-mapping>
+        <servlet-name>cgi</servlet-name>
+        <url-pattern>/cgi-bin/*</url-pattern>
+    </servlet-mapping>
+-->
+
+
+  <!-- ================== Built In Filter Definitions ===================== -->
+
+  <!-- NOTE: An SSI Servlet is also available as an alternative SSI         -->
+  <!-- implementation. Use either the Servlet or the Filter but NOT both.   -->
+  <!--                                                                      -->
+  <!-- Server Side Includes processing filter, which processes SSI          -->
+  <!-- directives in HTML pages consistent with similar support in web      -->
+  <!-- servers like Apache.  Traditionally, this filter is mapped to the    -->
+  <!-- URL pattern "*.shtml", though it can be mapped to "*" as it will     -->
+  <!-- selectively enable/disable SSI processing based on mime types. For   -->
+  <!-- this to work you will need to uncomment the .shtml mime type         -->
+  <!-- definition towards the bottom of this file.                          -->
+  <!-- The contentType init param allows you to apply SSI processing to JSP -->
+  <!-- pages, javascript, or any other content you wish.  This filter       -->
+  <!-- supports the following initialization parameters (default values are -->
+  <!-- in square brackets):                                                 -->
+  <!--                                                                      -->
+  <!--   contentType         A regex pattern that must be matched before    -->
+  <!--                       SSI processing is applied.                     -->
+  <!--                       [text/x-server-parsed-html(;.*)?]              -->
+  <!--                                                                      -->
+  <!--   debug               Debugging detail level for messages logged     -->
+  <!--                       by this servlet.  [0]                          -->
+  <!--                                                                      -->
+  <!--   expires             The number of seconds before a page with SSI   -->
+  <!--                       directives will expire.  [No default]          -->
+  <!--                                                                      -->
+  <!--   isVirtualWebappRelative                                            -->
+  <!--                       Should "virtual" paths be interpreted as       -->
+  <!--                       relative to the context root, instead of       -->
+  <!--                       the server root?  (0=false, 1=true) [0]        -->
+
+<!--
+    <filter>
+        <filter-name>ssi</filter-name>
+        <filter-class>
+          org.apache.catalina.ssi.SSIFilter
+        </filter-class>
+        <init-param>
+          <param-name>contentType</param-name>
+          <param-value>text/x-server-parsed-html(;.*)?</param-value>
+        </init-param>
+        <init-param>
+          <param-name>debug</param-name>
+          <param-value>0</param-value>
+        </init-param>
+        <init-param>
+          <param-name>expires</param-name>
+          <param-value>666</param-value>
+        </init-param>
+        <init-param>
+          <param-name>isVirtualWebappRelative</param-name>
+          <param-value>0</param-value>
+        </init-param>
+    </filter>
+-->
+
+
+  <!-- ==================== Built In Filter Mappings ====================== -->
+
+  <!-- The mapping for the SSI Filter -->
+<!--
+    <filter-mapping>
+        <filter-name>ssi</filter-name>
+        <url-pattern>*.shtml</url-pattern>
+    </filter-mapping>
+-->
+
+
+  <!-- ==================== Default Session Configuration ================= -->
+  <!-- You can set the default session timeout (in minutes) for all newly   -->
+  <!-- created sessions by modifying the value below.                       -->
+
+    <session-config>
+        <session-timeout>2</session-timeout>
+    </session-config>
+
+
+  <!-- ===================== Default MIME Type Mappings =================== -->
+  <!-- When serving static resources, Tomcat will automatically generate    -->
+  <!-- a "Content-Type" header based on the resource's filename extension,  -->
+  <!-- based on these mappings.  Additional mappings can be added here (to  -->
+  <!-- apply to all web applications), or in your own application's web.xml -->
+  <!-- deployment descriptor.                                               -->
+
+    <mime-mapping>
+        <extension>abs</extension>
+        <mime-type>audio/x-mpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ai</extension>
+        <mime-type>application/postscript</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>aif</extension>
+        <mime-type>audio/x-aiff</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>aifc</extension>
+        <mime-type>audio/x-aiff</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>aiff</extension>
+        <mime-type>audio/x-aiff</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>aim</extension>
+        <mime-type>application/x-aim</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>art</extension>
+        <mime-type>image/x-jg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>asf</extension>
+        <mime-type>video/x-ms-asf</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>asx</extension>
+        <mime-type>video/x-ms-asf</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>au</extension>
+        <mime-type>audio/basic</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>avi</extension>
+        <mime-type>video/x-msvideo</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>avx</extension>
+        <mime-type>video/x-rad-screenplay</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>bcpio</extension>
+        <mime-type>application/x-bcpio</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>bin</extension>
+        <mime-type>application/octet-stream</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>bmp</extension>
+        <mime-type>image/bmp</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>body</extension>
+        <mime-type>text/html</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>cdf</extension>
+        <mime-type>application/x-cdf</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>cer</extension>
+        <mime-type>application/x-x509-ca-cert</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>class</extension>
+        <mime-type>application/java</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>cpio</extension>
+        <mime-type>application/x-cpio</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>csh</extension>
+        <mime-type>application/x-csh</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>css</extension>
+        <mime-type>text/css</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>dib</extension>
+        <mime-type>image/bmp</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>doc</extension>
+        <mime-type>application/msword</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>dtd</extension>
+        <mime-type>application/xml-dtd</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>dv</extension>
+        <mime-type>video/x-dv</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>dvi</extension>
+        <mime-type>application/x-dvi</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>eps</extension>
+        <mime-type>application/postscript</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>etx</extension>
+        <mime-type>text/x-setext</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>exe</extension>
+        <mime-type>application/octet-stream</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>gif</extension>
+        <mime-type>image/gif</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>gtar</extension>
+        <mime-type>application/x-gtar</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>gz</extension>
+        <mime-type>application/x-gzip</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>hdf</extension>
+        <mime-type>application/x-hdf</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>hqx</extension>
+        <mime-type>application/mac-binhex40</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>htc</extension>
+        <mime-type>text/x-component</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>htm</extension>
+        <mime-type>text/html</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>html</extension>
+        <mime-type>text/html</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>hqx</extension>
+        <mime-type>application/mac-binhex40</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ief</extension>
+        <mime-type>image/ief</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>jad</extension>
+        <mime-type>text/vnd.sun.j2me.app-descriptor</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>jar</extension>
+        <mime-type>application/java-archive</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>java</extension>
+        <mime-type>text/plain</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>jnlp</extension>
+        <mime-type>application/x-java-jnlp-file</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>jpe</extension>
+        <mime-type>image/jpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>jpeg</extension>
+        <mime-type>image/jpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>jpg</extension>
+        <mime-type>image/jpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>js</extension>
+        <mime-type>text/javascript</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>jsf</extension>
+        <mime-type>text/plain</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>jspf</extension>
+        <mime-type>text/plain</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>kar</extension>
+        <mime-type>audio/x-midi</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>latex</extension>
+        <mime-type>application/x-latex</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>m3u</extension>
+        <mime-type>audio/x-mpegurl</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mac</extension>
+        <mime-type>image/x-macpaint</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>man</extension>
+        <mime-type>application/x-troff-man</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mathml</extension>
+        <mime-type>application/mathml+xml</mime-type> 
+    </mime-mapping>
+    <mime-mapping>
+        <extension>me</extension>
+        <mime-type>application/x-troff-me</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mid</extension>
+        <mime-type>audio/x-midi</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>midi</extension>
+        <mime-type>audio/x-midi</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mif</extension>
+        <mime-type>application/x-mif</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mov</extension>
+        <mime-type>video/quicktime</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>movie</extension>
+        <mime-type>video/x-sgi-movie</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mp1</extension>
+        <mime-type>audio/x-mpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mp2</extension>
+        <mime-type>audio/x-mpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mp3</extension>
+        <mime-type>audio/x-mpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mp4</extension>
+        <mime-type>video/mp4</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mpa</extension>
+        <mime-type>audio/x-mpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mpe</extension>
+        <mime-type>video/mpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mpeg</extension>
+        <mime-type>video/mpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mpega</extension>
+        <mime-type>audio/x-mpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mpg</extension>
+        <mime-type>video/mpeg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>mpv2</extension>
+        <mime-type>video/mpeg2</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ms</extension>
+        <mime-type>application/x-wais-source</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>nc</extension>
+        <mime-type>application/x-netcdf</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>oda</extension>
+        <mime-type>application/oda</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Database -->
+        <extension>odb</extension>
+        <mime-type>application/vnd.oasis.opendocument.database</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Chart -->
+        <extension>odc</extension>
+        <mime-type>application/vnd.oasis.opendocument.chart</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Formula -->
+        <extension>odf</extension>
+        <mime-type>application/vnd.oasis.opendocument.formula</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Drawing -->
+        <extension>odg</extension>
+        <mime-type>application/vnd.oasis.opendocument.graphics</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Image -->
+        <extension>odi</extension>
+        <mime-type>application/vnd.oasis.opendocument.image</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Master Document -->
+        <extension>odm</extension>
+        <mime-type>application/vnd.oasis.opendocument.text-master</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Presentation -->
+        <extension>odp</extension>
+        <mime-type>application/vnd.oasis.opendocument.presentation</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Spreadsheet -->
+        <extension>ods</extension>
+        <mime-type>application/vnd.oasis.opendocument.spreadsheet</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Text -->
+        <extension>odt</extension>
+        <mime-type>application/vnd.oasis.opendocument.text</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ogg</extension>
+        <mime-type>application/ogg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Drawing Template -->
+        <extension>otg </extension>
+        <mime-type>application/vnd.oasis.opendocument.graphics-template</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- HTML Document Template -->
+        <extension>oth</extension>
+        <mime-type>application/vnd.oasis.opendocument.text-web</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Presentation Template -->
+        <extension>otp</extension>
+        <mime-type>application/vnd.oasis.opendocument.presentation-template</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Spreadsheet Template -->
+        <extension>ots</extension>
+        <mime-type>application/vnd.oasis.opendocument.spreadsheet-template </mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- OpenDocument Text Template -->
+        <extension>ott</extension>
+        <mime-type>application/vnd.oasis.opendocument.text-template</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pbm</extension>
+        <mime-type>image/x-portable-bitmap</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pct</extension>
+        <mime-type>image/pict</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pdf</extension>
+        <mime-type>application/pdf</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pgm</extension>
+        <mime-type>image/x-portable-graymap</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pic</extension>
+        <mime-type>image/pict</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pict</extension>
+        <mime-type>image/pict</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pls</extension>
+        <mime-type>audio/x-scpls</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>png</extension>
+        <mime-type>image/png</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pnm</extension>
+        <mime-type>image/x-portable-anymap</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pnt</extension>
+        <mime-type>image/x-macpaint</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ppm</extension>
+        <mime-type>image/x-portable-pixmap</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ppt</extension>
+        <mime-type>application/powerpoint</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ps</extension>
+        <mime-type>application/postscript</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>psd</extension>
+        <mime-type>image/x-photoshop</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>qt</extension>
+        <mime-type>video/quicktime</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>qti</extension>
+        <mime-type>image/x-quicktime</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>qtif</extension>
+        <mime-type>image/x-quicktime</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ras</extension>
+        <mime-type>image/x-cmu-raster</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>rdf</extension>
+        <mime-type>application/rdf+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>rgb</extension>
+        <mime-type>image/x-rgb</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>rm</extension>
+        <mime-type>application/vnd.rn-realmedia</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>roff</extension>
+        <mime-type>application/x-troff</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>rtf</extension>
+        <mime-type>application/rtf</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>rtx</extension>
+        <mime-type>text/richtext</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>sh</extension>
+        <mime-type>application/x-sh</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>shar</extension>
+        <mime-type>application/x-shar</mime-type>
+    </mime-mapping>
+<!--
+    <mime-mapping>
+        <extension>shtml</extension>
+        <mime-type>text/x-server-parsed-html</mime-type>
+    </mime-mapping>
+-->
+    <mime-mapping>
+        <extension>smf</extension>
+        <mime-type>audio/x-midi</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>sit</extension>
+        <mime-type>application/x-stuffit</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>snd</extension>
+        <mime-type>audio/basic</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>src</extension>
+        <mime-type>application/x-wais-source</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>sv4cpio</extension>
+        <mime-type>application/x-sv4cpio</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>sv4crc</extension>
+        <mime-type>application/x-sv4crc</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>swf</extension>
+        <mime-type>application/x-shockwave-flash</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>t</extension>
+        <mime-type>application/x-troff</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>tar</extension>
+        <mime-type>application/x-tar</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>tcl</extension>
+        <mime-type>application/x-tcl</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>tex</extension>
+        <mime-type>application/x-tex</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>texi</extension>
+        <mime-type>application/x-texinfo</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>texinfo</extension>
+        <mime-type>application/x-texinfo</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>tif</extension>
+        <mime-type>image/tiff</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>tiff</extension>
+        <mime-type>image/tiff</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>tr</extension>
+        <mime-type>application/x-troff</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>tsv</extension>
+        <mime-type>text/tab-separated-values</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>txt</extension>
+        <mime-type>text/plain</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ulw</extension>
+        <mime-type>audio/basic</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ustar</extension>
+        <mime-type>application/x-ustar</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>vxml</extension>
+        <mime-type>application/voicexml+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xbm</extension>
+        <mime-type>image/x-xbitmap</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xht</extension>
+        <mime-type>application/xhtml+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xhtml</extension>
+        <mime-type>application/xhtml+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xml</extension>
+        <mime-type>application/xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xpm</extension>
+        <mime-type>image/x-xpixmap</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xsl</extension>
+        <mime-type>application/xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xslt</extension>
+        <mime-type>application/xslt+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xul</extension>
+        <mime-type>application/vnd.mozilla.xul+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xwd</extension>
+        <mime-type>image/x-xwindowdump</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>wav</extension>
+        <mime-type>audio/x-wav</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>svg</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>svgz</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>vsd</extension>
+        <mime-type>application/x-visio</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- Wireless Bitmap -->
+        <extension>wbmp</extension>
+        <mime-type>image/vnd.wap.wbmp</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- WML Source -->
+        <extension>wml</extension>
+        <mime-type>text/vnd.wap.wml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- Compiled WML -->
+        <extension>wmlc</extension>
+        <mime-type>application/vnd.wap.wmlc</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- WML Script Source -->
+        <extension>wmls</extension>
+        <mime-type>text/vnd.wap.wmlscript</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <!-- Compiled WML Script -->
+        <extension>wmlscriptc</extension>
+        <mime-type>application/vnd.wap.wmlscriptc</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>wmv</extension>
+        <mime-type>video/x-ms-wmv</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>wrl</extension>
+        <mime-type>x-world/x-vrml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>wspolicy</extension>
+        <mime-type>application/wspolicy+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>Z</extension>
+        <mime-type>application/x-compress</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>z</extension>
+        <mime-type>application/x-compress</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>zip</extension>
+        <mime-type>application/zip</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xls</extension>
+        <mime-type>application/vnd.ms-excel</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>doc</extension>
+        <mime-type>application/vnd.ms-word</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ppt</extension>
+        <mime-type>application/vnd.ms-powerpoint</mime-type>
+    </mime-mapping>
+
+  <!-- ==================== Default Welcome File List ===================== -->
+  <!-- When a request URI refers to a directory, the default servlet looks  -->
+  <!-- for a "welcome file" within that directory and, if present,          -->
+  <!-- to the corresponding resource URI for display.  If no welcome file   -->
+  <!-- is present, the default servlet either serves a directory listing,   -->
+  <!-- or returns a 404 status, depending on how it is configured.          -->
+  <!--                                                                      -->
+  <!-- If you define welcome files in your own application's web.xml        -->
+  <!-- deployment descriptor, that list *replaces* the list configured      -->
+  <!-- here, so be sure that you include any of the default values that     -->
+  <!-- you wish to include.                                                 -->
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.htm</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+   <error-page>
+       <description>Page Not Found </description>
+       <error-code>404</error-code>
+       <location>/index.html</location>
+   </error-page>
+
+
+</web-app>
+
+= Glossary
+* $APP_HOME - the directory into which the application is installed
