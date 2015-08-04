@@ -27,4 +27,8 @@
         <context:property-placeholder location="classpath:/app.conf" />
     </beans>
     
+    <beans profile="!dev">
+        <context:property-placeholder location="classpath:/app.conf" />
+    </beans>
+    
 </beans>

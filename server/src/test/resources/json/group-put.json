@@ -1,0 +1,33 @@
+{ 
+    "id": "b5213cd0-updt-4461-a334-79d7d74d9f91",
+    "creator": "CRS_ROOT",
+    "realm": "PBM",
+    "creatorAppId": "MONITOR",
+    "creation": 0, 
+    "version": 0,
+    "name":[
+        { 
+            "lang": "fr",
+            "value": "Group name in french updated" 
+        }, 
+        { 
+            "lang": "en",
+            "value": "Group name in english updated"
+        }
+     ], 
+     "description":[
+        {
+            "lang": "fr", 
+            "value": "Group description in french updated" 
+        },
+        { 
+            "lang": "en", 
+            "value": "Group description in english updated"
+        }
+     ],
+     "owner": {
+      "id": "CRS_ROOT",
+      "type": "person",
+      "realm": "PBM"
+    }
+}

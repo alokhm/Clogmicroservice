@@ -1,0 +1,65 @@
+[
+    {
+        "id":"3a4b7f9d-get-45d9-b55c-02ee3e428007",
+        "version":0,
+        "creator":"CRS_ROOT1",
+        "creatorAppId":"MONITOR1",
+        "creation":1397016000000,
+        "group":{
+            "id":"fab935ce-get-4846-b508-5d2af0c4d1a6",
+            "version":0,
+            "creator":"CRS_ROOT1",
+            "creatorAppId":"MONITOR1",
+            "creation":1397016000000,
+            "realm":"PDM",
+            "description":[
+                {
+                    "lang":"fr",
+                    "value":"Group description in french"
+                },
+                {
+                    "lang":"en",
+                    "value":"Group description in english"
+                }
+            ],
+            "name":[
+                {
+                    "lang":"fr",
+                    "value":"Group name in french"
+                },
+                {
+                    "lang":"en",
+                    "value":"Group name in english"
+                }
+            ],
+            "owner":{
+                "id":"CRS_ROOT",
+                "type":"person",
+                "realm":"PDM"
+            },
+            "entitlements":[
+                {
+                    "id":"fab935ce-get-4846-b508-5d2af0c4d134",
+                    "version":0,
+                    "creator":"CRS_ROOT1",
+                    "creatorAppId":"MONITOR1",
+                    "creation":1397016000000,
+                    "name":"User Administrator"
+                },
+                {
+                    "id":"fab935ce-get-4846-b508-5d2af0c4d145",
+                    "version":0,
+                    "creator":"CRS_ROOT1",
+                    "creatorAppId":"MONITOR1",
+                    "creation":1397016000000,
+                    "name":"Assistance application"
+                }
+            ]
+        },
+        "member":{
+            "id":"51035696-fd5b-4ce9-a452-c04670827c4b",
+            "type":"person",
+            "realm":"PDM"
+        }
+    }
+]

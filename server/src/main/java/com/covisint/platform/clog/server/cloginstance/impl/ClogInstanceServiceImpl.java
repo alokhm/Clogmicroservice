@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -21,12 +20,13 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
+import com.covisint.core.http.service.client.InvalidResponseException;
 import com.covisint.core.http.service.core.InvocationContext;
 import com.covisint.core.http.service.core.ResourceReference;
 import com.covisint.core.http.service.server.service.BaseResourceService;
 import com.covisint.core.support.constraint.Nonnull;
+import com.covisint.core.support.constraint.NotEmpty;
 import com.covisint.platform.clog.core.cloginstance.ClogInstance;
 import com.covisint.platform.clog.server.cloginstance.ClogInstanceDAO;
 import com.covisint.platform.clog.server.cloginstance.ClogInstanceService;
@@ -48,6 +48,7 @@ public final class ClogInstanceServiceImpl extends
 
 	/** Group entitlement client instance. */
 	private GroupEntitlementClient groupEntitlementClient;
+	private String elasticSearchUrl;
 	
 	/** realmId. */
 	private final static String REALM_ID = "realmId";
@@ -62,14 +63,16 @@ public final class ClogInstanceServiceImpl extends
 	private final static String CLOG_INSTANCE = "CLOG INSTANCE";
 	
 	/** ViewLogs. */
-	private final static String VIEW_LOGS = "viewLogs";
+	private final static String VIEW_LOGS = "view_logs";
 	
 	
-	/** ViewLogs. */
-	private final static String ELASTIC_SEARCH_URL = "http://localhost:9200/_aliases";
+	
 	
 	/** Class logger. */
     private final Logger log = LoggerFactory.getLogger(ClogInstanceServiceImpl.class);
+	
+    /** local. */
+	private final static String EN = "en";
 	
 	/**
 	 * Constructs the Service Impl using the passed in {@link ClogInstanceDAO}
@@ -86,10 +89,13 @@ public final class ClogInstanceServiceImpl extends
 	
 	public ClogInstanceServiceImpl(@Nonnull final ClogInstanceDAO dao,
 			@Nonnull GroupClient newGroupClient,
-			@Nonnull GroupEntitlementClient newGroupEntitlementClient) {
+			@Nonnull GroupEntitlementClient newGroupEntitlementClient, 
+			@Nonnull @NotEmpty String newElasticSearchUrl) {
 		super(dao);
 		groupClient = newGroupClient;
 		groupEntitlementClient = newGroupEntitlementClient;
+		elasticSearchUrl = newElasticSearchUrl;
+		
 	}
 
 	/**
@@ -119,12 +125,17 @@ public final class ClogInstanceServiceImpl extends
 			
 		/** create Cloginstance record */
 		clogInstance = super.add(clogInstance);
-		
+		HttpResponse response = null;
 		/** create an alias in ElasticSearch for platforminstanceId */
 		try {
-			createAliasInElasticSearch(clogInstance);
+			response = createAliasInElasticSearch(clogInstance);
 			//createAliasFromRestTemplate(clogInstance); 
 		} catch (Exception e) {
+			if(response == null) {
+				throw new InvalidResponseException("Elastic Search Alias creation got failed", e.getMessage());
+			} else { 
+				validateElasticSearchResponse(response);
+			}
 			log.error("Error occurred while creating Alias in elastic search", e);
 		}
 		
@@ -138,33 +149,22 @@ public final class ClogInstanceServiceImpl extends
 		
 	}*/
 
-	private void createAliasInElasticSearch(ClogInstance clogInstance)
-			throws Exception {
+	private HttpResponse createAliasInElasticSearch(ClogInstance clogInstance) throws Exception {
 		HttpClient client = HttpClientBuilder.create().build();
-		HttpResponse response = null;
-		try {
-			response = client.execute(createHttpPost(clogInstance));
-			validateElasticSearchResponse(response);
-
-		} catch (ClientProtocolException e) {
-			log.error("error occurs when calling elastic search rest endpoint ",e);
-		} catch (IOException e) {
-		}
- 
+		return client.execute(createHttpPost(clogInstance));
 	}
 	
-	private void validateElasticSearchResponse(HttpResponse response)
-			throws Exception {
-		if (!(null != response && null != response.getStatusLine() && response
-				.getStatusLine().getStatusCode() == 200)) {
-			throw new Exception("Elastic Search Alias creation got failed");
+	private void validateElasticSearchResponse(HttpResponse response) {
+		if (null != response.getStatusLine() && response.getStatusLine().getStatusCode() != 200) {
+			throw new InvalidResponseException("Elastic Search Alias creation got failed with StatusCode :"+ response
+					.getStatusLine().getStatusCode());
 		}
 	}
 
 	private HttpUriRequest createHttpPost(ClogInstance clogInstance)
 			throws JsonGenerationException, JsonMappingException,
 			UnsupportedEncodingException, IOException {
-		HttpPost post = new HttpPost(ELASTIC_SEARCH_URL);
+		HttpPost post = new HttpPost(elasticSearchUrl);
 		StringEntity params = new StringEntity(generatePayload(clogInstance));
 		post.setEntity(params);
 		return post;
@@ -185,13 +185,13 @@ public final class ClogInstanceServiceImpl extends
 		final HttpContext context = buildHttpContext();
 		
 		final Map<String, String> names = new HashMap<>();
-		names.put("en", clogInstance.getPlatformInstanceId());
+		names.put(EN, clogInstance.getPlatformInstanceId());
 		final Map<String, String> descriptions = new HashMap<>();
-		descriptions.put("en", clogInstance.getPlatformInstanceId());
+		descriptions.put(EN, clogInstance.getPlatformInstanceId());
 
 		group.setName(names)
 				.setDescription(descriptions)
-				.setCreator(InvocationContext.getRequestorId())
+				.setCreator(InvocationContext.getRequestor())
 				.setCreatorApplicationId(
 						InvocationContext.getRequestorApplicationId())
 				.setOwner(
@@ -205,7 +205,7 @@ public final class ClogInstanceServiceImpl extends
 			final GroupEntitlement groupEntitlement = new GroupEntitlement()
 					.setGroup(addedGroup)
 					.setName(VIEW_LOGS)
-					.setCreator(InvocationContext.getRequestorId())
+					.setCreator(InvocationContext.getRequestor())
 					.setCreatorApplicationId(
 							InvocationContext.getRequestorApplicationId());
 			groupEntitlementClient.add(addedGroup.getId(), groupEntitlement,

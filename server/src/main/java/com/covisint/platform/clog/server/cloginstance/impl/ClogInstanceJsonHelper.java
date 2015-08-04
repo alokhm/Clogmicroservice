@@ -7,6 +7,8 @@ import java.util.List;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.covisint.platform.clog.model.Action;
 import com.covisint.platform.clog.model.Add;
@@ -18,12 +20,32 @@ import com.covisint.platform.clog.model.Term;
 
 public class ClogInstanceJsonHelper {
 	
+	private static final String ALIAS = "ALIAS";
+	private static final String INDEX = "covs_logs";
+	private static final String GROUP_ID = "GROUP_ID";
+	private static final String REALM_ID = "REALM_ID";
+	
+	/** Class logger. */
+    private static final Logger logger = LoggerFactory.getLogger(ClogInstanceJsonHelper.class);
+
+    /**
+     * Main class for verify the Json payload
+     * @param alias
+     * @param index
+     * @param group_id
+     * @param realm_id
+     * @return 
+     * @throws JsonGenerationException
+     * @throws JsonMappingException
+     * @throws IOException
+     */
+    
 	public static void main(String[] args) throws JsonGenerationException,
 			JsonMappingException, IOException {
 		String jsonPayLoad = new ClogInstanceJsonHelper()
-				.createJsonForClogInstance("alok_group", "cov_logs",
-						"1234", "2222");
-		System.out.println(jsonPayLoad);
+				.createJsonForClogInstance(ALIAS, INDEX,
+						GROUP_ID, REALM_ID);
+		logger.info(jsonPayLoad);
 	}
 /**
  * 

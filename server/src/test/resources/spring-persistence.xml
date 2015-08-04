@@ -2,45 +2,20 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:c="http://www.springframework.org/schema/c" xmlns:p="http://www.springframework.org/schema/p" xmlns:util="http://www.springframework.org/schema/util"
-    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:tx="http://www.springframework.org/schema/tx"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd 
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd 
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <!-- Define application DAOs here -->
     <bean id="clogInstanceDao" class="com.covisint.platform.clog.server.cloginstance.impl.ClogInstanceJpaDao" />
 
-    <!-- Datasource -->
-    <bean id="datasource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-        <!-- DB connection properties -->
-        <property name="driverClass" value="${db.driver:oracle.jdbc.OracleDriver}" />
-        <property name="jdbcUrl" value="${db.url}" />
-        <property name="user" value="${db.user:clog}" />
-        <property name="password" value="${db.password:clog}" />
-
-        <!-- Pool sizing properties -->
-        <property name="initialPoolSize" value="${db.pool.initialSize:5}" />
-        <property name="maxPoolSize" value="${db.pool.maxSize:25}" />
-        <property name="minPoolSize" value="${db.pool.minSize:0}" />
-        <property name="maxStatements" value="${db.pool.maxStatements:10}" />
-
-        <!-- Connection testing and acquisition properties -->
-        <property name="maxIdleTime" value="${db.con.maxIdleTime:300}" />
-        <property name="idleConnectionTestPeriod" value="${db.con.testPeriod:30}" />
-        <property name="preferredTestQuery" value="${db.con.testQuery:select 1 from dual}" />
-        <property name="acquireIncrement" value="${db.con.acquireIncrement:5}" />
-        <property name="acquireRetryAttempts" value="${db.con.retryAttempts:0}" />
-        <property name="acquireRetryDelay" value="${db.con.retryDelay:3000}" />
-
-        <!-- JMX name -->
-        <property name="dataSourceName" value="Datasource" />
-
-        <!-- Debugging options -->
-        <property name="unreturnedConnectionTimeout" value="${db.con.unreturnedTimeout:0}" />
-        <property name="debugUnreturnedConnectionStackTraces" value="${db.con.debugUnreturned:false}" />
-    </bean>
-    
-    
+    <!-- Embedded datasource -->
+    <jdbc:embedded-database id="datasource" type="H2">
+        <jdbc:script location="classpath:clogInstanceSchema.sql" />
+    </jdbc:embedded-database>
+        
     <bean id="emf" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="datasource" />
         <property name="packagesToScan" value="com.covisint" />

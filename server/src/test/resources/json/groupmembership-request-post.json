@@ -1,0 +1,14 @@
+{  
+   "creator":"CRS_ROOT1",
+   "creatorAppId":"MONITOR1",
+   "group":{  
+      "id":"fab935ce-get-4846-b508-5d2af0c4d1a6",
+      "type":"group",
+      "realm":"ABC"
+   },
+   "member":{  
+      "id":"72f9339c-4fac-4c33-831d-931ddabd1ac5",
+      "type":"person",
+      "realm":"ABC"
+   }
+}

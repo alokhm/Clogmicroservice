@@ -2,4 +2,4 @@
 
 /** Implementation of the cloginstance client module. */
 
-package com.covisint.platform.clog.client;
+package com.covisint.platform.clog.cloginstance.client;

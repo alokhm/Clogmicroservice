@@ -15,7 +15,7 @@ import com.covisint.platform.clog.core.cloginstance.ClogInstance;
  *
  */
 @Controller
-@RequestMapping("/clogintances")
+@RequestMapping("/cloginstances")
 public final class ClogInstanceController extends BaseResourceController<ClogInstance, ClogInstanceService> {
 
 	/** {@inheritDoc} */

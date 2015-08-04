@@ -1,0 +1,36 @@
+[
+    {
+        "id":"3a4b7f9d-get-45d9-b55c-02ee3e428008",
+        "version":0,
+        "creator":"CRS_ROOT1",
+        "creatorAppId":"MONITOR1",
+        "creation":1397016000000,
+        "group":{
+            "id":"fab935ce-srch-4846-b508-5d2af0c4d1a7",
+            "type":"group",
+            "realm":"PDM"
+        },
+        "member":{
+            "id":"51035696-fd5b-4ce9-a452-c04670827c4c",
+            "type":"person",
+            "realm":"PDM"
+        }
+    },
+    {
+        "id":"3a4b7f9d-get-45d9-b55c-02ee3e428009",
+        "version":0,
+        "creator":"CRS_ROOT1",
+        "creatorAppId":"MONITOR1",
+        "creation":1397016000000,
+        "group":{
+            "id":"fab935ce-srch-4846-b508-5d2af0c4d1a8",
+            "type":"group",
+            "realm":"PDM"
+        },
+        "member":{
+            "id":"51035696-fd5b-4ce9-a452-c04670827c4c",
+            "type":"person",
+            "realm":"PDM"
+        }
+    }
+]

@@ -7,6 +7,5 @@
 
     <!-- Define application service beans here -->
     
-    <bean id="clogInstanceService" class="com.covisint.platform.clog.server.cloginstance.impl.ClogInstanceServiceImpl" c:dao-ref="clogInstanceDao" c:newGroupClient-ref="groupClient" c:newGroupEntitlementClient-ref="groupEntitlementClient" />
-
+    <bean id="clogInstanceService" class="com.covisint.platform.clog.server.cloginstance.impl.ClogInstanceServiceImpl" c:dao-ref="clogInstanceDao" c:newGroupClient-ref="groupClient" c:newGroupEntitlementClient-ref="groupEntitlementClient" c:newElasticSearchUrl="${es.aliasUrl}"/>
 </beans>

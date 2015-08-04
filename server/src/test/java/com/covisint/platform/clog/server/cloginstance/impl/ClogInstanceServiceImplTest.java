@@ -20,7 +20,8 @@ import com.covisint.platform.group.client.group.entitlement.GroupEntitlementClie
  */
 public class ClogInstanceServiceImplTest {
 
-	private ClogInstanceServiceImpl subject = new ClogInstanceServiceImpl(mock(ClogInstanceDAO.class),mock(GroupClient.class),mock(GroupEntitlementClient.class));
+	private static final String ES_URL = "http://localhost:8080";
+	private ClogInstanceServiceImpl subject = new ClogInstanceServiceImpl(mock(ClogInstanceDAO.class),mock(GroupClient.class),mock(GroupEntitlementClient.class),ES_URL);
 	
 	@Rule
     public ExpectedException thrown= ExpectedException.none();

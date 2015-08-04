@@ -33,9 +33,5 @@
     </mvc:annotation-driven>
     
     <context:component-scan base-package="com.covisint.core,com.covisint.platform.clog" />
-    
-    <mvc:interceptors>
-        <bean class="com.covisint.core.http.service.server.HeadersInterceptor" />
-    </mvc:interceptors>
 
 </beans>

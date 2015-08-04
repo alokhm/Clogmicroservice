@@ -7,9 +7,6 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd 
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="mockClientBuilder" class="com.covisint.platform.user.server.person.MockClientBuilder" />
-    <bean id="realmClient" factory-bean="mockClientBuilder" factory-method="buildRealmClient" />
-
     <bean id="groupClientFactory" class="com.covisint.platform.group.client.group.GroupClientFactory"
         c:serviceUrl="${group.baseServiceUrl}" />
 

@@ -1,0 +1,60 @@
+[
+    {
+        "id":"374c700f-srch-4b6f-be30-e0f474081e3a",
+        "version":0,
+        "creator":"CRS_ROOT6",
+        "creatorAppId":"MONITOR6",
+        "creation":1397016000000,
+        "realm":"TEST_SEARCH",
+        "description":[
+            {
+                "lang":"fr",
+                "value":"Description in French"
+            },
+            {
+                "lang":"en",
+                "value":"Description in English"
+            }
+        ],
+        "name":[
+            {
+                "lang":"fr",
+                "value":"Name in French"
+            },
+            {
+                "lang":"en",
+                "value":"Name in English"
+            }
+        ],
+         "owner": {
+            "id": "CRS_ROOT",
+            "type": "person",
+            "realm": "PDM"
+         }
+    },
+    {
+        "id":"abc993xy-srch-4b6f-be30-e0f474081e3a",
+        "version":0,
+        "creator":"CRS_ROOT6",
+        "creatorAppId":"MONITOR6",
+        "creation":1397016000000,
+        "realm":"TEST_SEARCH",
+        "description":[
+            {
+                "lang":"en",
+                "value":"Description in English"
+            }
+        ],
+        "name":[
+            {
+                "lang":"en",
+                "value":"Name in English"
+            }
+        ],
+         "owner": {
+            "id": "CRS_ROOT",
+            "type": "person",
+            "realm": "PDM"
+         }
+    }
+]

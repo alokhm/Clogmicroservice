@@ -1,0 +1,85 @@
+[
+    { 
+        "id": "374c700f-srch-4b6f-be30-e0f474081e3a",
+        "creator": "CRS_ROOT6",
+        "creation": 1397016000000, 
+        "realm": "TEST_SEARCH",
+        "creatorAppId": "MONITOR6", 
+        "version": 0,
+        "name":[
+            { 
+                "lang": "fr",
+                "value": "Name in French" 
+            }, 
+            { 
+                "lang": "en",
+                "value": "Name in English"
+            }
+         ], 
+         "description":[
+            {
+                "lang": "fr", 
+                "value": "Description in French" 
+            },
+            { 
+                "lang": "en", 
+                "value": "Description in English"
+            }
+         ],
+         "owner": {
+            "id": "CRS_ROOT",
+            "type": "person",
+            "realm": "PDM"
+         }
+    },
+    { 
+        "id": "abc993xy-srch-4b6f-be30-e0f474081e3a",
+        "creator": "CRS_ROOT6",
+        "creation": 1397016000000, 
+        "realm": "TEST_SEARCH",
+        "creatorAppId": "MONITOR6", 
+        "version": 0,
+        "name":[
+            { 
+                "lang": "en",
+                "value": "Name in English"
+            }
+         ], 
+         "description":[
+            { 
+                "lang": "en", 
+                "value": "Description in English"
+            }
+         ],
+         "owner": {
+            "id": "CRS_ROOT",
+            "type": "person",
+            "realm": "PDM"
+         }
+    },
+    { 
+        "id": "ffe935ce-srch-425a-82b5-e33d35210f2b",
+        "creator": "CRS_ROOT6",
+        "creation": 1397016000000, 
+        "realm": "TEST_SEARCH2",
+        "creatorAppId": "MONITOR6", 
+        "version": 0,
+        "name":[
+            { 
+                "lang": "en",
+                "value": "English Name"
+            }
+         ], 
+         "description":[
+            { 
+                "lang": "en", 
+                "value": "English Description"
+            }
+         ],
+         "owner": {
+            "id": "CRS_ROOT",
+            "type": "person",
+            "realm": "PDM"
+         }
+    }
+]

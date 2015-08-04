@@ -1,9 +1,7 @@
 
 package com.covisint.platform.clog.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Generated;
@@ -21,6 +19,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
     "add"
 })
 public class Action {
+
 
     @JsonProperty("add")
     private Add add;

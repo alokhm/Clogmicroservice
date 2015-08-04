@@ -1,0 +1,55 @@
+[{
+    "id":"5thb7f9d-get-45d9-b55c-02ee3e428862",
+    "version":0,
+    "creator":"CRS_ROOT1",
+    "creatorAppId":"MONITOR1",
+    "creation":1397016000000,
+    "group":{
+        "id":"h4560543-del-425a-9021-30f4xedggfjk2",
+        "version":0,
+        "creator":"CRS_ROOT8",
+        "creatorAppId":"MONITOR7",
+        "creation":1397016000000,
+        "realm":"DIAMOND",
+        "description":[
+            {
+                "lang":"fr",
+                "value":"Group description in french"
+            },
+            {
+                "lang":"en",
+                "value":"Group description in english"
+            }
+        ],
+        "name":[
+            {
+                "lang":"fr",
+                "value":"Group name in french"
+            },
+            {
+                "lang":"en",
+                "value":"Group name in english"
+            }
+        ],
+        "owner":{
+            "id":"CRS_ROOT2",
+            "type":"person1",
+            "realm":"DIAMOND"
+        },
+        "entitlements":[
+            {
+                "id":"fab93fde-get-4846-b508-5ddsfddd4dd3",
+                "version":0,
+                "creator":"CRS_ROOT1",
+                "creatorAppId":"MONITOR1",
+                "creation":1334083000000,
+                "name":"User Administrator"
+            }
+        ]
+    },
+    "member":{
+        "id":"41035696-fd5b-4ce9-a452-c04670827c42",
+        "type":"person",
+        "realm":"DIAMOND"
+    }
+}]

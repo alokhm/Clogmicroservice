@@ -1,0 +1,30 @@
+{ 
+    "creator": "CRS_ROOT", 
+    "realm": "PDM",
+    "creatorAppId": "MONITOR", 
+    "name":[
+        { 
+            "lang": "fr",
+            "value": "Group name in french" 
+        }, 
+        { 
+            "lang": "en",
+            "value": "Group name in english"
+        }
+     ], 
+     "description":[
+        {
+            "lang": "fr", 
+            "value": "Group description in french" 
+        },
+        { 
+            "lang": "en", 
+            "value": "Group description in english"
+        }
+     ],
+     "owner": {
+      "id": "CRS_ROOT",
+      "type": "person",
+      "realm": "ABC"
+    }
+}

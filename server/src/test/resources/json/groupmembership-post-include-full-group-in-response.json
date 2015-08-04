@@ -1,0 +1,42 @@
+{  
+   "creator":"CRS_ROOT1",
+   "creatorAppId":"MONITOR1",
+   "group":{ 
+        "id": "fab935ce-get-4846-b508-5d2af0c4d1a6",
+        "creator": "CRS_ROOT1",
+        "creation": 1397016000000, 
+        "realm": "PDM",
+        "creatorAppId": "MONITOR1", 
+        "version": 0,
+        "name":[
+            { 
+                "lang": "fr",
+                "value": "Group name in french" 
+            }, 
+            { 
+                "lang": "en",
+                "value": "Group name in english"
+            }
+         ], 
+         "description":[
+            {
+                "lang": "fr", 
+                "value": "Group description in french" 
+            },
+            { 
+                "lang": "en", 
+                "value": "Group description in english"
+            }
+         ],
+         "owner": {
+            "id": "CRS_ROOT",
+            "type": "person",
+            "realm": "PDM"
+         }
+   }
+   "member":{  
+      "id":"72f9339c-4fac-4c33-831d-931ddabd1ac5",
+      "type":"person",
+      "realm":"PDM"
+   }
+}
