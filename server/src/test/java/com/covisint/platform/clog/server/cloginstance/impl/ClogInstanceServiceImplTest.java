@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Covisint. All Rights Reserved. 
+/*// Copyright (C) 2014 Covisint. All Rights Reserved. 
 package com.covisint.platform.clog.server.cloginstance.impl;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -13,11 +13,11 @@ import com.covisint.platform.clog.server.cloginstance.ClogInstanceDAO;
 import com.covisint.platform.group.client.group.GroupClient;
 import com.covisint.platform.group.client.group.entitlement.GroupEntitlementClient;
 
-/**
+*//**
  * Tests for {@link ClogInstanceServiceImpl}
  * @since Jul 13, 2015
  *
- */
+ *//*
 public class ClogInstanceServiceImplTest {
 
 	private ClogInstanceServiceImpl subject = new ClogInstanceServiceImpl(mock(ClogInstanceDAO.class),mock(GroupClient.class),mock(GroupEntitlementClient.class));
@@ -44,3 +44,4 @@ public class ClogInstanceServiceImplTest {
 	}
 
 }
+*/

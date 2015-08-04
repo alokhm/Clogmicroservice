@@ -47,7 +47,7 @@ public final class ClogInstanceServiceImpl extends
 
 	/** Group entitlement client instance. */
 	private GroupEntitlementClient groupEntitlementClient;
-	
+	private HttpClient httpclient;
 	/** realmId. */
 	private final static String REALM_ID = "realmId";
 	
@@ -85,10 +85,12 @@ public final class ClogInstanceServiceImpl extends
 	
 	public ClogInstanceServiceImpl(@Nonnull final ClogInstanceDAO dao,
 			@Nonnull GroupClient newGroupClient,
-			@Nonnull GroupEntitlementClient newGroupEntitlementClient) {
+			@Nonnull GroupEntitlementClient newGroupEntitlementClient, 
+			@Nonnull HttpClient newHttpClient) {
 		super(dao);
 		groupClient = newGroupClient;
 		groupEntitlementClient = newGroupEntitlementClient;
+		//httpclient=newHttpClient;
 	}
 
 	/**
