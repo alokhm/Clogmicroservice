@@ -26,6 +26,7 @@ import com.covisint.core.http.service.core.InvocationContext;
 import com.covisint.core.http.service.core.ResourceReference;
 import com.covisint.core.http.service.server.service.BaseResourceService;
 import com.covisint.core.support.constraint.Nonnull;
+import com.covisint.core.support.constraint.NotEmpty;
 import com.covisint.platform.clog.core.cloginstance.ClogInstance;
 import com.covisint.platform.clog.server.cloginstance.ClogInstanceDAO;
 import com.covisint.platform.clog.server.cloginstance.ClogInstanceService;
@@ -47,7 +48,10 @@ public final class ClogInstanceServiceImpl extends
 
 	/** Group entitlement client instance. */
 	private GroupEntitlementClient groupEntitlementClient;
-	private HttpClient httpclient;
+	private HttpClient client;
+	private String elasticSearchUrl;
+	
+	
 	/** realmId. */
 	private final static String REALM_ID = "realmId";
 	
@@ -65,7 +69,7 @@ public final class ClogInstanceServiceImpl extends
 	
 	
 	/** ViewLogs. */
-	private final static String ELASTIC_SEARCH_URL = "http://localhost:9200/_aliases";
+	//private final static String ELASTIC_SEARCH_URL = "http://localhost:9200/_aliases";
 	
 	/** Class logger. */
     private final Logger log = LoggerFactory.getLogger(ClogInstanceServiceImpl.class);
@@ -86,11 +90,12 @@ public final class ClogInstanceServiceImpl extends
 	public ClogInstanceServiceImpl(@Nonnull final ClogInstanceDAO dao,
 			@Nonnull GroupClient newGroupClient,
 			@Nonnull GroupEntitlementClient newGroupEntitlementClient, 
-			@Nonnull HttpClient newHttpClient) {
+			@Nonnull @NotEmpty String newElasticSearchUrl) {
 		super(dao);
 		groupClient = newGroupClient;
 		groupEntitlementClient = newGroupEntitlementClient;
-		//httpclient=newHttpClient;
+		elasticSearchUrl = newElasticSearchUrl;
+		
 	}
 
 	/**
@@ -141,7 +146,7 @@ public final class ClogInstanceServiceImpl extends
 
 	private void createAliasInElasticSearch(ClogInstance clogInstance)
 			throws Exception {
-		HttpClient client = HttpClientBuilder.create().build();
+		client = HttpClientBuilder.create().build();
 		HttpResponse response = null;
 		try {
 			response = client.execute(createHttpPost(clogInstance));
@@ -165,7 +170,7 @@ public final class ClogInstanceServiceImpl extends
 	private HttpUriRequest createHttpPost(ClogInstance clogInstance)
 			throws JsonGenerationException, JsonMappingException,
 			UnsupportedEncodingException, IOException {
-		HttpPost post = new HttpPost(ELASTIC_SEARCH_URL);
+		HttpPost post = new HttpPost(elasticSearchUrl);
 		StringEntity params = new StringEntity(generatePayload(clogInstance));
 		post.setEntity(params);
 		return post;
