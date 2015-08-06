@@ -20,4 +20,8 @@
 
     <bean id="groupEntitlementClient" factory-bean="groupEntitlementClientFactory" factory-method="create" />
     
+    
+	<bean id="httpClientBuilder" class="org.apache.http.impl.client.HttpClientBuilder"  factory-method="create"/>
+	<bean id="httpClient" factory-bean="httpClientBuilder" factory-method="build" />
+    
 </beans>

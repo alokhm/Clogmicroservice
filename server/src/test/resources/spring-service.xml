@@ -9,6 +9,7 @@
     
     <bean id="clogInstanceService" class="com.covisint.platform.clog.server.cloginstance.impl.ClogInstanceServiceImpl" c:dao-ref="clogInstanceDao" c:groupServiceWrapper-ref="groupServiceWrapper" c:elasticSearchServiceWrapper-ref="elasticSearchServiceWrapper" />
     <bean id="groupServiceWrapper" class="com.covisint.platform.clog.server.wrapper.GroupServiceWrapper" c:newGroupClient-ref="groupClient" c:newGroupEntitlementClient-ref="groupEntitlementClient"/>
-    <bean id="elasticSearchServiceWrapper" class="com.covisint.platform.clog.server.wrapper.ElasticSearchServiceWrapper" c:elasticSearchUrl="${es.aliasUrl}" c:indexName="${es.es_indexname:cov_logs}"/>
+    <bean id="elasticSearchServiceWrapper" class="com.covisint.platform.clog.server.wrapper.ElasticSearchServiceWrapper" c:httpClientWrapper-ref="httpClientWrapper" c:elasticSearchUrl="${es.aliasUrl}" c:indexName="${es.es_indexname:cov_logs}"/>
+    <bean id="httpClientWrapper" class="com.covisint.platform.clog.server.wrapper.HttpClientWrapper" c:httpClient-ref="httpClient"/>
 
 </beans>
