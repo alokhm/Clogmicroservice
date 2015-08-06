@@ -248,7 +248,7 @@ public class ClogInstanceControllerTest {
 				.contentType(
 						MediaType.parseMediaType(CLOG_INSTANCE_V1_MEDIA_TYPE)));
 		
-		resultAction.andExpect(status().is5xxServerError());
+		resultAction.andExpect(status().is4xxClientError());
 	}
 	
     /**
@@ -263,7 +263,7 @@ public class ClogInstanceControllerTest {
         final JSONObject clogInstanceJsonObject = getJsonObject("classpath:json/cloginstance-post.json");
 
         final ResultActions resultAction = mockMvc.perform(post("/cloginstances").content(clogInstanceJsonObject.toString())
-                .accept(CLOG_INSTANCE_V1_MEDIA_TYPE).contentType(MediaType.parseMediaType(CLOG_INSTANCE_V1_MEDIA_TYPE))).andExpect(status().is5xxServerError());
+                .accept(CLOG_INSTANCE_V1_MEDIA_TYPE).contentType(MediaType.parseMediaType(CLOG_INSTANCE_V1_MEDIA_TYPE))).andExpect(status().is4xxClientError());
 
         //resultAction.andExpect(status().isCreated()).andExpect(content().contentType(CLOG_INSTANCE_V1_MEDIA_TYPE));
 

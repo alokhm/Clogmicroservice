@@ -10,8 +10,8 @@ import org.junit.rules.ExpectedException;
 
 import com.covisint.platform.clog.core.cloginstance.ClogInstance;
 import com.covisint.platform.clog.server.cloginstance.ClogInstanceDAO;
-import com.covisint.platform.group.client.group.GroupClient;
-import com.covisint.platform.group.client.group.entitlement.GroupEntitlementClient;
+import com.covisint.platform.clog.server.wrapper.ElasticSearchServiceWrapper;
+import com.covisint.platform.clog.server.wrapper.GroupServiceWrapper;
 
 /**
  * Tests for {@link ClogInstanceServiceImpl}
@@ -20,8 +20,7 @@ import com.covisint.platform.group.client.group.entitlement.GroupEntitlementClie
  */
 public class ClogInstanceServiceImplTest {
 
-	private static final String ES_URL = "http://localhost:8080";
-	private ClogInstanceServiceImpl subject = new ClogInstanceServiceImpl(mock(ClogInstanceDAO.class),mock(GroupClient.class),mock(GroupEntitlementClient.class),ES_URL);
+	private ClogInstanceServiceImpl subject = new ClogInstanceServiceImpl(mock(ClogInstanceDAO.class),mock(GroupServiceWrapper.class),mock(ElasticSearchServiceWrapper.class));
 	
 	@Rule
     public ExpectedException thrown= ExpectedException.none();
